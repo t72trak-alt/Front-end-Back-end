@@ -1,91 +1,96 @@
-﻿{% extends "layout.html" %}
-{% block title %}Регистрация - AI Developer Portal{% endblock %}
+﻿<!DOCTYPE html>
+<html lang="ru">
+{% extends "layout.html" %}
 {% block content %}
-<div class="auth-container" id="register-app">
-    <div class="auth-card">
-        <h2>Регистрация</h2>
-        <form id="registerForm" @submit.prevent="handleSubmit">
-            <div class="form-group">
-                <label for="name">Имя:</label>
-                <input type="text" id="name" v-model="name" required>
+<div class="max-w-2xl mx-auto">
+    <div class="text-center mb-12">
+        <h2 class="text-5xl font-bold text-white mb-6">Регистрация</h2>
+        <p class="text-gray-400 text-xl">Создайте аккаунт для доступа к сервису</p>
+    </div>
+    <div class="bg-gray-800 rounded-3xl p-10 shadow-2xl">
+        <form action="/api/auth/register" method="POST" class="space-y-8">
+            <!-- Имя -->
+            <div>
+                <label class="block text-xl font-semibold text-white mb-4 text-center">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-2xl">👤</span>
+                        Имя
+                    </span>
+                </label>
+                <input 
+                    type="text" 
+                    name="name"
+                    required
+                    placeholder="Ваше полное имя"
+                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
+                >
             </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" v-model="email" required>
+            <!-- Email -->
+            <div>
+                <label class="block text-xl font-semibold text-white mb-4 text-center">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-2xl">📧</span>
+                        Email
+                    </span>
+                </label>
+                <input 
+                    type="email" 
+                    name="email"
+                    required
+                    placeholder="ваш@email.com"
+                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
+                >
             </div>
-            <div class="form-group">
-                <label for="password">Пароль:</label>
-                <input type="password" id="password" v-model="password" required>
+            <!-- Пароль -->
+            <div>
+                <label class="block text-xl font-semibold text-white mb-4 text-center">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-2xl">🔒</span>
+                        Пароль
+                    </span>
+                </label>
+                <input 
+                    type="password" 
+                    name="password"
+                    required
+                    placeholder="Создайте надёжный пароль"
+                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
+                >
             </div>
-            <div class="form-group">
-                <label for="task">Какую задачу хотите решить? (необязательно):</label>
-                <textarea id="task" v-model="task" rows="3"></textarea>
+            <!-- Задача (необязательно) -->
+            <div>
+                <label class="block text-xl font-semibold text-white mb-4 text-center">
+                    <span class="flex items-center justify-center gap-2">
+                        <span class="text-2xl">🎯</span>
+                        Какую задачу хотите решить? (необязательно)
+                    </span>
+                </label>
+                <textarea 
+                    name="task"
+                    rows="3"
+                    placeholder="Опишите вашу задачу или проект..."
+                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all resize-none"
+                ></textarea>
             </div>
-            <button type="submit" class="btn-primary">Зарегистрироваться</button>
+            <!-- Кнопка регистрации -->
+            <div class="pt-6">
+                <button 
+                    type="submit"
+                    class="w-full py-6 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-2xl font-bold rounded-2xl hover:opacity-90 hover:scale-[1.02] transition-all duration-300 shadow-lg"
+                >
+                    🚀 ЗАРЕГИСТРИРОВАТЬСЯ
+                </button>
+            </div>
+            <!-- Ссылка на вход -->
+            <div class="text-center pt-8">
+                <p class="text-gray-400 text-xl">
+                    Уже есть аккаунт? 
+                    <a href="/login" class="text-blue-400 hover:text-blue-300 font-semibold text-xl underline decoration-2">
+                        Войти
+                    </a>
+                </p>
+            </div>
         </form>
-        <p class="auth-link">Уже есть аккаунт? <a href="/login">Войти</a></p>
     </div>
 </div>
-<script>
-const { createApp } = Vue;
-createApp({
-    data() {
-        return {
-            email: '',
-            name: '',
-            password: '',
-            task: '',
-            message: '',
-            messageType: '',
-            isLoading: false
-        };
-    },
-    methods: {
-        async handleSubmit(event) {
-            event.preventDefault();
-            this.isLoading = true;
-            this.message = '';
-            this.messageType = '';
-            try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: this.email,
-                        name: this.name,
-                        password: this.password
-                    })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    this.message = 'Регистрация успешна! Переход на страницу входа...';
-                    this.messageType = 'success';
-                    // Очищаем форму
-                    this.email = '';
-                    this.name = '';
-                    this.password = '';
-                    this.task = '';
-                    // Переход через 2 секунды
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 2000);
-                } else {
-                    this.message = data.detail || 'Ошибка регистрации';
-                    this.messageType = 'error';
-                }
-            } catch (error) {
-                this.message = 'Ошибка сети или сервера';
-                this.messageType = 'error';
-                console.error('Registration error:', error);
-            } finally {
-                this.isLoading = false;
-            }
-        }
-    }
-}).mount('#register-app');
-</script>
 {% endblock %}
-
-

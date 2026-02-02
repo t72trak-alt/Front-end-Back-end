@@ -1,78 +1,61 @@
-﻿{% extends "layout.html" %}
-{% block title %}Вход - AI Developer Portal{% endblock %}
+﻿<!DOCTYPE html>
+<html lang="ru">
+{% extends "layout.html" %}
 {% block content %}
-<div class="auth-container" id="login-app">
-    <div class="auth-card">
-        <h2>Вход в личный кабинет</h2>
-        <form id="loginForm" @submit.prevent="handleSubmit">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" v-model="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Пароль:</label>
-                <input type="password" id="password" v-model="password" required>
-            </div>
-            <button type="submit" class="btn-primary">Войти</button>
-        </form>
-        <p class="auth-link">Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+<div class="max-w-md mx-auto bg-gray-800 rounded-2xl p-8 shadow-2xl">
+    <!-- Заголовок -->
+    <div class="text-center mb-10">
+        <h2 class="text-4xl font-bold text-white mb-4">Вход в систему</h2>
+        <p class="text-gray-400 text-lg">Введите ваши учетные данные</p>
+    </div>
+    <!-- Форма входа -->
+    <form action="/api/auth/login" method="POST" class="space-y-6">
+        <!-- Поле Email -->
+        <div>
+            <label for="email" class="block text-lg font-medium text-gray-300 mb-2 text-center">
+                Email
+            </label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email"
+                required
+                placeholder="ваш@email.com"
+                class="w-full px-6 py-4 bg-gray-700 border border-gray-600 rounded-xl text-white text-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+        <!-- Поле Пароль -->
+        <div>
+            <label for="password" class="block text-lg font-medium text-gray-300 mb-2 text-center">
+                Пароль
+            </label>
+            <input 
+                type="password" 
+                id="password" 
+                name="password"
+                required
+                placeholder="••••••••"
+                class="w-full px-6 py-4 bg-gray-700 border border-gray-600 rounded-xl text-white text-lg text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+        <!-- Кнопка входа -->
+        <div class="pt-4">
+            <button 
+                type="submit"
+                class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xl font-bold rounded-xl hover:opacity-90 transition-all duration-300"
+            >
+                ВОЙТИ
+            </button>
+        </div>
+    </form>
+    <!-- Ссылка на регистрацию -->
+    <div class="mt-8 text-center">
+        <p class="text-gray-400 text-lg">
+            Нет аккаунта? 
+            <a href="/register" class="text-blue-400 hover:text-blue-300 font-medium text-lg">
+                Зарегистрироваться
+            </a>
+        </p>
     </div>
 </div>
-<script>
-const { createApp } = Vue;
-createApp({
-    data() {
-        return {
-            email: '',
-            password: '',
-            message: '',
-            messageType: '',
-            isLoading: false
-        };
-    },
-    methods: {
-        async handleSubmit(event) {
-            event.preventDefault();
-            this.isLoading = true;
-            this.message = '';
-            this.messageType = '';
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: this.email,
-                        password: this.password
-                    })
-                });
-                const data = await response.json();
-                if (response.ok && data.access_token) {
-                    this.message = 'Вход успешен! Переход в личный кабинет...';
-                    this.messageType = 'success';
-                    // Сохраняем токен
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('user_email', this.email);
-                    // Переход через 1.5 секунды
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1500);
-                } else {
-                    this.message = data.detail || 'Ошибка входа';
-                    this.messageType = 'error';
-                }
-            } catch (error) {
-                this.message = 'Ошибка сети или сервера';
-                this.messageType = 'error';
-                console.error('Login error:', error);
-            } finally {
-                this.isLoading = false;
-            }
-        }
-    }
-}).mount('#login-app');
-</script>
 {% endblock %}
-
-

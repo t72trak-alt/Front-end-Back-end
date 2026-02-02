@@ -3,29 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI Developer Portal{% endblock %}</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script></head>
+    <title>Front end & Back end</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+        .nav-tab {
+            padding: 12px 24px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .nav-tab:hover {
+            color: white;
+            border-bottom-color: #3b82f6;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #94a3b8;
+            margin-bottom: 3rem;
+        }
+    </style>
+</head>
 <body>
-    <nav>
-        <div class="nav-container">
-            <a href="/" class="logo">AI Dev</a>
-            <div class="nav-links">
-                <a href="/#services">Услуги</a>
-                <a href="/#portfolio">Портфолио</a>
-                <a href="/#contact">Контакты</a>
-                <a href="/register" class="btn-outline">Регистрация</a>
-                <a href="/login" class="btn-primary">Войти</a>
+    <!-- Верхняя панель навигации -->
+    <header class="border-b border-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-center space-x-8 py-4">
+                <a href="/services" class="nav-tab">Услуги</a>
+                <a href="/pricing" class="nav-tab">Цены и сроки</a>
+                <a href="/contacts" class="nav-tab">Контакты</a>
+                <a href="/register" class="nav-tab">Регистрация</a>
+                <a href="/login" class="nav-tab">Вход</a>
             </div>
         </div>
-    </nav>
-
-    <main>
+    </header>
+    <!-- Основной контент -->
+    <main class="container mx-auto px-6 py-12">
+        <!-- Центральный заголовок -->
+        <div class="text-center mb-16">
+            <h1 class="hero-title">Front end & Back end</h1>
+            <p class="hero-subtitle">Разработка ИИ решений под ключ</p>
+        </div>
         {% block content %}{% endblock %}
     </main>
-
-    <footer>
-        <p>© 2024 AI Developer Portal</p>
+    <!-- Футер -->
+    <footer class="border-t border-gray-800 mt-16 py-8">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <p>© 2024 Front end & Back end. Все права защищены.</p>
+            <p class="mt-2">Разработка ИИ решений под ключ</p>
+        </div>
     </footer>
 </body>
 </html>

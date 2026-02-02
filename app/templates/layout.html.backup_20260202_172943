@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Developer Portal - {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-robot text-blue-600 text-2xl"></i>
+                <a href="/" class="text-xl font-bold text-gray-800">AI Developer</a>
+            </div>
+            <div class="flex space-x-6">
+                <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">Главная</a>
+                <a href="/services" class="text-gray-600 hover:text-blue-600 transition-colors">Услуги</a>
+                <a href="/pricing" class="text-gray-600 hover:text-blue-600 transition-colors">Цены и сроки</a>
+                <a href="/dashboard" class="text-gray-600 hover:text-blue-600 transition-colors">Личный кабинет</a>
+                {% if user %}
+                <a href="/logout" class="text-gray-600 hover:text-blue-600 transition-colors">Выйти</a>
+                {% else %}
+                <a href="/login" class="text-gray-600 hover:text-blue-600 transition-colors">Войти</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">AI Developer</h3>
+                    <p class="text-gray-300">Профессиональные решения по внедрению искусственного интеллекта в ваш бизнес</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Контакты</h4>
+                    <p class="text-gray-300"><i class="fas fa-envelope mr-2"></i> t72trak@gmail.com</p>
+                    <p class="text-gray-300"><i class="fas fa-phone mr-2"></i> +7 (905) 330-60-76</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Услуги</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>Промпт-инжиниринг</li>
+                        <li>Разработка ИИ-решений</li>
+                        <li>Интеграция ИИ в бизнес</li>
+                        <li>Автоматизация процессов</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 AI Developer Portal. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Простая функция для обработки форм
+        document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем обработчики для форм
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Обработка...';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

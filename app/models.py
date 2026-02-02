@@ -1,7 +1,9 @@
-﻿from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+﻿from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, JSON
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from .database import Base
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -10,8 +12,26 @@ class User(Base):
     hashed_password = Column(String)
     salt = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    is_admin = Column(Boolean, default=False)  # Поле для определения администратора
-    # Убираем updated_at чтобы избежать ошибки
+    is_admin = Column(Boolean, default=False)
+
+class Service(Base):
+    __tablename__ = "services"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    icon = Column(String(50))
+    short_description = Column(String(300))
+    full_description = Column(Text)
+    features = Column(JSON)
+    technologies = Column(JSON)
+    price_range = Column(String(100))
+    duration = Column(String(100))
+    order_index = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    projects = relationship("Project", back_populates="service")
+
 class Project(Base):
     __tablename__ = "projects"
     id = Column(Integer, primary_key=True, index=True)
@@ -19,8 +39,12 @@ class Project(Base):
     description = Column(Text)
     status = Column(String, default="pending")
     user_id = Column(Integer, ForeignKey("users.id"))
+    service_id = Column(Integer, ForeignKey("services.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
     user = relationship("User")
+    service = relationship("Service", back_populates="projects")
+
 class Message(Base):
     __tablename__ = "messages"
     id = Column(Integer, primary_key=True, index=True)
@@ -29,6 +53,7 @@ class Message(Base):
     is_owner = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     sender = relationship("User")
+
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
