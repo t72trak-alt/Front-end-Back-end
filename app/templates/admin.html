@@ -1,0 +1,136 @@
+﻿{% extends "layout.html" %}
+{% block title %}Панель администратора{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">👑 Панель администратора</h1>
+    <div class="row">
+        <!-- Статистика -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-dark border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Пользователи</h5>
+                    <h2 id="users-count">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-dark border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">📁 Проекты</h5>
+                    <h2 id="projects-count">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Таблица пользователей -->
+    <div class="card bg-dark border-secondary mb-4">
+        <div class="card-header">
+            <h4>Пользователи</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Имя</th>
+                            <th>Email</th>
+                            <th>Админ</th>
+                            <th>Дата регистрации</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-body">
+                        <!-- Данные загрузятся через JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Таблица проектов -->
+    <div class="card bg-dark border-secondary">
+        <div class="card-header">
+            <h4>Проекты</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover" id="projects-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Описание</th>
+                            <th>Статус</th>
+                            <th>Пользователь</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-body">
+                        <!-- Данные загрузятся через JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- JavaScript для загрузки данных -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadAdminData();
+    async function loadAdminData() {
+        try {
+            // Загружаем пользователей
+            const usersResponse = await fetch('/api/admin/users');
+            const usersData = await usersResponse.json();
+            // Загружаем проекты
+            const projectsResponse = await fetch('/api/admin/projects');
+            const projectsData = await projectsResponse.json();
+            // Обновляем счетчики
+            document.getElementById('users-count').textContent = usersData.count;
+            document.getElementById('projects-count').textContent = projectsData.count;
+            // Заполняем таблицу пользователей
+            const usersBody = document.getElementById('users-body');
+            usersBody.innerHTML = '';
+            usersData.users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.is_admin ? '✅' : '❌'}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                `;
+                usersBody.appendChild(row);
+            });
+            // Заполняем таблицу проектов
+            const projectsBody = document.getElementById('projects-body');
+            projectsBody.innerHTML = '';
+            projectsData.projects.forEach(project => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${project.id}</td>
+                    <td>${project.title}</td>
+                    <td>${project.description || '-'}</td>
+                    <td><span class="badge ${project.status === 'active' ? 'bg-success' : 'bg-warning'}">${project.status}</span></td>
+                    <td>ID: ${project.user_id}</td>
+                    <td>${new Date(project.created_at).toLocaleDateString()}</td>
+                `;
+                projectsBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+            alert('Ошибка загрузки данных администратора. Проверьте права доступа.');
+        }
+    }
+});
+</script>
+<style>
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.badge {
+    font-size: 0.8em;
+    padding: 4px 8px;
+}
+</style>
+{% endblock %}
