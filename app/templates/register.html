@@ -2,95 +2,113 @@
 <html lang="ru">
 {% extends "layout.html" %}
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <div class="text-center mb-12">
-        <h2 class="text-5xl font-bold text-white mb-6">Регистрация</h2>
-        <p class="text-gray-400 text-xl">Создайте аккаунт для доступа к сервису</p>
+<div class="bg-gray-800 rounded-2xl p-10 shadow-2xl">
+    <!-- Заголовок -->
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-white mb-4">Регистрация</h2>
+        <p class="text-gray-400 text-xl">Создайте аккаунт для доступа</p>
     </div>
-    <div class="bg-gray-800 rounded-3xl p-10 shadow-2xl">
-        <form action="/api/auth/register" method="POST" class="space-y-8">
-            <!-- Имя -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">👤</span>
-                        Имя
-                    </span>
-                </label>
-                <input 
-                    type="text" 
-                    name="name"
-                    required
-                    placeholder="Ваше полное имя"
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
-                >
-            </div>
-            <!-- Email -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">📧</span>
-                        Email
-                    </span>
-                </label>
-                <input 
-                    type="email" 
-                    name="email"
-                    required
-                    placeholder="ваш@email.com"
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
-                >
-            </div>
-            <!-- Пароль -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">🔒</span>
-                        Пароль
-                    </span>
-                </label>
-                <input 
-                    type="password" 
-                    name="password"
-                    required
-                    placeholder="Создайте надёжный пароль"
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
-                >
-            </div>
-            <!-- Задача (необязательно) -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">🎯</span>
-                        Какую задачу хотите решить? (необязательно)
-                    </span>
-                </label>
-                <textarea 
-                    name="task"
-                    rows="3"
-                    placeholder="Опишите вашу задачу или проект..."
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all resize-none"
-                ></textarea>
-            </div>
-            <!-- Кнопка регистрации -->
-            <div class="pt-6">
-                <button 
-                    type="submit"
-                    class="w-full py-6 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-2xl font-bold rounded-2xl hover:opacity-90 hover:scale-[1.02] transition-all duration-300 shadow-lg"
-                >
-                    🚀 ЗАРЕГИСТРИРОВАТЬСЯ
-                </button>
-            </div>
-            <!-- Ссылка на вход -->
-            <div class="text-center pt-8">
-                <p class="text-gray-400 text-xl">
-                    Уже есть аккаунт? 
-                    <a href="/login" class="text-blue-400 hover:text-blue-300 font-semibold text-xl underline decoration-2">
-                        Войти
-                    </a>
-                </p>
-            </div>
-        </form>
+    <!-- Форма -->
+    <form id="registerForm" class="space-y-8">
+        <!-- Имя -->
+        <div>
+            <label class="block text-xl font-semibold text-white mb-4 text-center">
+                Ваше имя
+            </label>
+            <input 
+                type="text" 
+                id="name"
+                required
+                placeholder="Введите ваше полное имя"
+                class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-xl text-white text-xl text-center focus:outline-none focus:border-blue-500"
+            >
+        </div>
+        <!-- Email -->
+        <div>
+            <label class="block text-xl font-semibold text-white mb-4 text-center">
+                Email
+            </label>
+            <input 
+                type="email" 
+                id="email"
+                required
+                placeholder="ваш@email.com"
+                class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-xl text-white text-xl text-center focus:outline-none focus:border-blue-500"
+            >
+        </div>
+        <!-- Пароль -->
+        <div>
+            <label class="block text-xl font-semibold text-white mb-4 text-center">
+                Пароль
+            </label>
+            <input 
+                type="password" 
+                id="password"
+                required
+                placeholder="Создайте надёжный пароль"
+                class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-xl text-white text-xl text-center focus:outline-none focus:border-blue-500"
+            >
+        </div>
+        <!-- Сообщение -->
+        <div id="message" class="hidden p-4 rounded-lg text-lg text-center"></div>
+        <!-- Кнопка -->
+        <div class="pt-6">
+            <button 
+                type="button"
+                id="registerButton"
+                class="w-full py-5 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-2xl font-bold rounded-xl hover:opacity-90 hover:scale-[1.02] transition-all duration-300 shadow-lg"
+            >
+                ЗАРЕГИСТРИРОВАТЬСЯ
+            </button>
+        </div>
+    </form>
+    <!-- Ссылка на вход -->
+    <div class="mt-10 text-center">
+        <p class="text-gray-400 text-xl">
+            Уже есть аккаунт? 
+            <a href="/login" class="text-blue-400 hover:text-blue-300 font-semibold text-xl underline">
+                Войти
+            </a>
+        </p>
     </div>
 </div>
+<script>
+document.getElementById('registerButton').addEventListener('click', async function() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const messageDiv = document.getElementById('message');
+    messageDiv.classList.add('hidden');
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                password: password
+            })
+        });
+        if (response.ok) {
+            messageDiv.textContent = '✅ Регистрация успешна! Перенаправление...';
+            messageDiv.className = 'p-4 bg-green-900 text-green-100 rounded-lg text-lg text-center';
+            messageDiv.classList.remove('hidden');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
+        } else {
+            const errorData = await response.json();
+            messageDiv.textContent = '❌ ' + (errorData.detail || 'Ошибка регистрации');
+            messageDiv.className = 'p-4 bg-red-900 text-red-100 rounded-lg text-lg text-center';
+            messageDiv.classList.remove('hidden');
+        }
+    } catch (error) {
+        messageDiv.textContent = '❌ Сетевая ошибка';
+        messageDiv.className = 'p-4 bg-red-900 text-red-100 rounded-lg text-lg text-center';
+        messageDiv.classList.remove('hidden');
+    }
+});
+</script>
 {% endblock %}

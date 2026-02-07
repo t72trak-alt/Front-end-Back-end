@@ -137,6 +137,19 @@ async def admin_page(request: Request):
 async def test_api():
     return {"message": "API работает", "status": "ok"}
 
-if __name__ == "__main__":
+
+# Новые страницы
+@app.get("/services")
+async def services_page(request: Request):
+    return templates.TemplateResponse("services.html", {"request": request})
+@app.get("/pricing")
+async def pricing_page(request: Request):
+    return templates.TemplateResponse("pricing.html", {"request": request})
+@app.get("/contacts")
+async def contacts_page(request: Request):
+    return templates.TemplateResponse("contacts.html", {"request": request})
+
+
+
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
