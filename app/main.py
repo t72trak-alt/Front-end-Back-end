@@ -6,7 +6,7 @@ import jwt
 from datetime import datetime, timedelta
 from app.database import get_db
 from app.models import User
-from app.routers import auth, chat, projects, admin, services
+from app.routers import auth, chat, projects, admin, services, services
 from app.dependencies import get_current_user
 
 app = FastAPI(title="AI Developer Portal", version="1.0")
