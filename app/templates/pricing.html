@@ -1,49 +1,384 @@
 ﻿{% extends "layout.html" %}
-{% block title %}Цены и сроки{% endblock %}
+{% block title %}Цены и сроки - AI Developer Portal{% endblock %}
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-3">Цены и сроки</h1>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Прозрачное ценообразование и четкие сроки для каждой услуги</p>
+<style>
+    .pricing-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 20px;
+    }
+    .pricing-wrapper {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .pricing-header {
+        text-align: center;
+        margin-bottom: 60px;
+        color: white;
+    }
+    .pricing-title {
+        font-size: 48px;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    .pricing-subtitle {
+        font-size: 22px;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        margin-bottom: 60px;
+    }
+    .pricing-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease;
+        border: 2px solid #e2e8f0;
+    }
+    .pricing-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #3b82f6;
+    }
+    .card-icon {
+        font-size: 42px;
+    }
+    .card-status {
+        background: #10b981;
+        color: white;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .card-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 15px;
+    }
+    .card-description {
+        font-size: 18px;
+        color: #4a5568;
+        margin-bottom: 25px;
+        line-height: 1.6;
+    }
+    .card-price {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+    .price-amount {
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+    .price-duration {
+        font-size: 20px;
+        opacity: 0.9;
+    }
+    .features-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 15px;
+    }
+    .features-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 30px;
+    }
+    .feature-item {
+        color: #2d3748;
+        font-size: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+    }
+    .feature-item:last-child {
+        border-bottom: none;
+    }
+    .feature-check {
+        color: #10b981;
+        font-size: 20px;
+        margin-right: 12px;
+        font-weight: bold;
+    }
+    .apply-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        border: none;
+        padding: 18px;
+        font-size: 18px;
+        font-weight: 700;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .apply-btn:hover {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+    }
+    .instructions {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-left: 6px solid #3b82f6;
+    }
+    .instructions-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 20px;
+    }
+    .instructions-list {
+        font-size: 18px;
+        color: #4a5568;
+        line-height: 1.8;
+    }
+    .instructions-list p {
+        margin-bottom: 15px;
+        padding-left: 20px;
+        position: relative;
+    }
+    .instructions-list p:before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: #3b82f6;
+        font-weight: bold;
+    }
+    .pricing-footer {
+        text-align: center;
+        color: white;
+        padding-top: 40px;
+        border-top: 2px solid rgba(255,255,255,0.1);
+    }
+    .brand {
+        font-size: 32px;
+        font-weight: 800;
+        margin-top: 15px;
+    }
+</style>
+<div class="pricing-container">
+    <div class="pricing-wrapper">
+        <div class="pricing-header">
+            <h1 class="pricing-title">Цены и сроки</h1>
+            <p class="pricing-subtitle">Прозрачное ценообразование и четкие сроки для каждой услуги</p>
         </div>
-        <!-- Контейнер для карточек услуг -->
-        <div id="services-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Карточки будут загружены через JavaScript -->
-            <div class="col-span-1 sm:col-span-2 lg:col-span-4 text-center py-12">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
-                <p class="text-gray-500">Загрузка услуг...</p>
+        <div class="pricing-grid">
+            <!-- Промпт-инжиниринг -->
+            <div class="pricing-card">
+                <div class="card-header">
+                    <span class="card-icon">🎯</span>
+                    <span class="card-status">Активно</span>
+                </div>
+                <h3 class="card-title">Промпт-инжиниринг</h3>
+                <p class="card-description">Создание и оптимизация промптов для AI-моделей</p>
+                <div class="card-price">
+                    <div class="price-amount">15 000 - 50 000 ₽</div>
+                    <div class="price-duration">3-7 дней</div>
+                </div>
+                <h4 class="features-title">Включает:</h4>
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Анализ задачи и контекста
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Разработка эффективных промптов
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Тестирование и оптимизация
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Документация промптов
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Обучение команды
+                    </li>
+                </ul>
+                <button onclick="applyForService('prompt')" class="apply-btn">
+                    Подать заявку
+                </button>
+            </div>
+            <!-- Разработка ИИ-ассистентов -->
+            <div class="pricing-card">
+                <div class="card-header">
+                    <span class="card-icon">🤖</span>
+                    <span class="card-status">Активно</span>
+                </div>
+                <h3 class="card-title">Разработка ИИ-ассистентов</h3>
+                <p class="card-description">Разработка интеллектуальных ассистентов для бизнеса</p>
+                <div class="card-price">
+                    <div class="price-amount">50 000 - 200 000 ₽</div>
+                    <div class="price-duration">14-30 дней</div>
+                </div>
+                <h4 class="features-title">Включает:</h4>
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Проектирование архитектуры
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Разработка прототипа
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Интеграция AI моделей
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Тестирование и настройка
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Деплой и поддержка
+                    </li>
+                </ul>
+                <button onclick="applyForService('ai-assistant')" class="apply-btn">
+                    Подать заявку
+                </button>
+            </div>
+            <!-- Интеграция ИИ в бизнес -->
+            <div class="pricing-card">
+                <div class="card-header">
+                    <span class="card-icon">🔧</span>
+                    <span class="card-status">Активно</span>
+                </div>
+                <h3 class="card-title">Интеграция ИИ в бизнес</h3>
+                <p class="card-description">Внедрение AI-решений в бизнес-процессы</p>
+                <div class="card-price">
+                    <div class="price-amount">100 000 - 500 000 ₽</div>
+                    <div class="price-duration">30-90 дней</div>
+                </div>
+                <h4 class="features-title">Включает:</h4>
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Анализ бизнес-процессов
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Разработка плана интеграции
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Внедрение решения
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Обучение сотрудников
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Техническая поддержка
+                    </li>
+                </ul>
+                <button onclick="applyForService('integration')" class="apply-btn">
+                    Подать заявку
+                </button>
+            </div>
+            <!-- Автоматизация бизнес-процессов -->
+            <div class="pricing-card">
+                <div class="card-header">
+                    <span class="card-icon">⚙️</span>
+                    <span class="card-status">Активно</span>
+                </div>
+                <h3 class="card-title">Автоматизация бизнес-процессов</h3>
+                <p class="card-description">Анализ и автоматизация рутинных процессов</p>
+                <div class="card-price">
+                    <div class="price-amount">50 000 - 300 000 ₽</div>
+                    <div class="price-duration">7-30 дней</div>
+                </div>
+                <h4 class="features-title">Включает:</h4>
+                <ul class="features-list">
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Аудит процессов
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Проектирование автоматизации
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Разработка скриптов/ботов
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Тестирование системы
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-check">✓</span>
+                        Документация и обучение
+                    </li>
+                </ul>
+                <button onclick="applyForService('automation')" class="apply-btn">
+                    Подать заявку
+                </button>
             </div>
         </div>
-        <!-- Информация о заявке -->
-        <div class="mt-12 max-w-2xl mx-auto text-center">
-            <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
-                <h3 class="text-lg font-bold text-gray-800 mb-3">Как подать заявку?</h3>
-                <p class="text-gray-700 mb-4">
-                    Нажмите "Подать заявку" на выбранной услуге. Вы перейдете в чат с разработчиком, 
-                    где сможете обсудить детали проекта и получить консультацию.
-                </p>
-                <p class="text-sm text-gray-600">
-                    Для подачи заявки требуется регистрация. Если вы еще не зарегистрированы, 
-                    система предложит вам войти или создать аккаунт.
-                </p>
+        <!-- Инструкция -->
+        <div class="instructions">
+            <h2 class="instructions-title">Как подать заявку?</h2>
+            <div class="instructions-list">
+                <p>Нажмите "Подать заявку" на выбранной услуге.</p>
+                <p>Вы перейдете в чат с разработчиком, где сможете обсудить детали проекта и получить консультацию.</p>
+                <p>Для подачи заявки требуется регистрация. Если вы еще не зарегистрированы, система предложит вам войти или создать аккаунт.</p>
             </div>
+        </div>
+        <!-- Футер -->
+        <div class="pricing-footer">
+            <p>© 2024 Front end & Back end. Все права защищены.</p>
+            <div class="brand">AI Developer Portal</div>
         </div>
     </div>
 </div>
-<!-- Подключим JavaScript для загрузки услуг -->
-<script src="{{ url_for('static', path='js/pricing.js') }}"></script>
-<!-- Резервный скрипт на случай проблем -->
 <script>
-    // Резервная проверка: если через 10 секунд карточки не загрузились
-    setTimeout(function() {
-        const container = document.getElementById('services-container');
-        if (container && container.innerHTML.includes('Загрузка услуг')) {
-            console.warn('Основной скрипт не сработал, загружаем резервный...');
-            const backupScript = document.createElement('script');
-            backupScript.src = "{{ url_for('static', path='js/pricing_simple.js') }}";
-            document.head.appendChild(backupScript);
-        }
-    }, 10000);
+function applyForService(serviceType) {
+    fetch('/api/auth/me')
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/dashboard';
+            } else {
+                if (confirm('Для подачи заявки требуется регистрация. Перейти на страницу входа?')) {
+                    window.location.href = '/login';
+                }
+            }
+        })
+        .catch(error => {
+            if (confirm('Для подачи заявки требуется регистрация. Перейти на страницу входа?')) {
+                window.location.href = '/login';
+            }
+        });
+}
 </script>
 {% endblock %}
