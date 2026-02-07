@@ -139,13 +139,13 @@ async def test_api():
 
 
 # Новые страницы
-@app.get("/services")
+@app.get("/services", response_class=HTMLResponse)
 async def services_page(request: Request):
     return templates.TemplateResponse("services.html", {"request": request})
-@app.get("/pricing")
+@app.get("/pricing", response_class=HTMLResponse)
 async def pricing_page(request: Request):
     return templates.TemplateResponse("pricing.html", {"request": request})
-@app.get("/contacts")
+@app.get("/contacts", response_class=HTMLResponse)
 async def contacts_page(request: Request):
     return templates.TemplateResponse("contacts.html", {"request": request})
 
@@ -153,3 +153,5 @@ async def contacts_page(request: Request):
 
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+

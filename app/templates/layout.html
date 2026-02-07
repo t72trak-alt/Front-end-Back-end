@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Front end & Back end</title>
+    <title>{% block title %}Front end & Back end{% endblock %}</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -11,7 +11,6 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            overflow: hidden !important;
         }
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
@@ -19,21 +18,14 @@
             color: white;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            max-height: 100vh;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            min-height: 100vh;
         }
         .nav-tab {
             padding: 8px 12px;
             color: #cbd5e1;
             text-decoration: none;
             border-bottom: 2px solid transparent;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             transition: all 0.2s;
             white-space: nowrap;
         }
@@ -42,7 +34,7 @@
             border-bottom-color: #3b82f6;
         }
         .hero-title {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 800;
             background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
             -webkit-background-clip: text;
@@ -51,34 +43,40 @@
             line-height: 1.2;
         }
         .hero-subtitle {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: #94a3b8;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 0.5rem;
-            overflow: hidden;
+            padding: 1rem;
         }
-        .compact-container {
+        .content-container {
             width: 100%;
-            max-width: 320px;
+            max-width: 1200px;
             margin: 0 auto;
+            flex: 1;
         }
         * {
             box-sizing: border-box;
         }
+        /* Для страницы цен - белый фон */
+        .pricing-page body {
+            background: #f9fafb;
+            color: #1f2937;
+        }
+        .pricing-page .main-content {
+            background: #f9fafb;
+        }
     </style>
 </head>
-<body>
+<body class="{% if request.url.path == '/pricing' %}pricing-page{% endif %}">
     <!-- Верхняя панель навигации -->
-    <header class="border-b border-gray-800 flex-shrink-0">
-        <div class="container mx-auto px-2">
-            <div class="flex justify-center space-x-2 py-2 overflow-x-auto">
+    <header class="border-b border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-4 py-3 overflow-x-auto">
                 <a href="/services" class="nav-tab">Услуги</a>
                 <a href="/pricing" class="nav-tab">Цены и сроки</a>
                 <a href="/contacts" class="nav-tab">Контакты</a>
@@ -89,20 +87,22 @@
     </header>
     <!-- Основной контент -->
     <div class="main-content">
-        <!-- Центральный заголовок -->
-        <div class="text-center mb-3">
+        <!-- Центральный заголовок (только на главной) -->
+        {% if request.url.path == '/' %}
+        <div class="text-center mb-6 pt-4">
             <h1 class="hero-title">Front end & Back end</h1>
-            <p class="hero-subtitle">Разработка ИИ решений под ключ</p>
+            <p class="hero-subtitle">Разработка ИИ-решений под ключ</p>
         </div>
-        <div class="compact-container">
+        {% endif %}
+        <div class="content-container">
             {% block content %}{% endblock %}
         </div>
     </div>
     <!-- Футер -->
-    <footer class="border-t border-gray-800 py-2 flex-shrink-0">
-        <div class="container mx-auto px-2 text-center text-gray-500 text-xs">
+    <footer class="border-t border-gray-800 py-4 mt-8">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
             <p>© 2024 Front end & Back end. Все права защищены.</p>
-            <p class="mt-0.5">Разработка ИИ решений под ключ</p>
+            <p class="mt-1">AI Developer Portal</p>
         </div>
     </footer>
 </body>

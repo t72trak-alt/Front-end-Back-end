@@ -1,0 +1,49 @@
+﻿{% extends "layout.html" %}
+{% block title %}Цены и сроки{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-3">Цены и сроки</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Прозрачное ценообразование и четкие сроки для каждой услуги</p>
+        </div>
+        <!-- Контейнер для карточек услуг -->
+        <div id="services-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Карточки будут загружены через JavaScript -->
+            <div class="col-span-1 sm:col-span-2 lg:col-span-4 text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                <p class="text-gray-500">Загрузка услуг...</p>
+            </div>
+        </div>
+        <!-- Информация о заявке -->
+        <div class="mt-12 max-w-2xl mx-auto text-center">
+            <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Как подать заявку?</h3>
+                <p class="text-gray-700 mb-4">
+                    Нажмите "Подать заявку" на выбранной услуге. Вы перейдете в чат с разработчиком, 
+                    где сможете обсудить детали проекта и получить консультацию.
+                </p>
+                <p class="text-sm text-gray-600">
+                    Для подачи заявки требуется регистрация. Если вы еще не зарегистрированы, 
+                    система предложит вам войти или создать аккаунт.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Подключим JavaScript для загрузки услуг -->
+<script src="{{ url_for('static', path='js/pricing.js') }}"></script>
+<!-- Резервный скрипт на случай проблем -->
+<script>
+    // Резервная проверка: если через 10 секунд карточки не загрузились
+    setTimeout(function() {
+        const container = document.getElementById('services-container');
+        if (container && container.innerHTML.includes('Загрузка услуг')) {
+            console.warn('Основной скрипт не сработал, загружаем резервный...');
+            const backupScript = document.createElement('script');
+            backupScript.src = "{{ url_for('static', path='js/pricing_simple.js') }}";
+            document.head.appendChild(backupScript);
+        }
+    }, 10000);
+</script>
+{% endblock %}

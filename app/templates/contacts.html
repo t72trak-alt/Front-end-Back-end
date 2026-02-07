@@ -1,79 +1,79 @@
-﻿<!DOCTYPE html>
-<html lang="ru">
-{% extends "layout.html" %}
+﻿{% extends "layout.html" %}
+{% block title %}Контакты{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-white mb-4">Контакты</h2>
-        <p class="text-gray-400 text-xl">Свяжитесь с нами</p>
-    </div>
-    <div class="grid md:grid-cols-2 gap-8">
+<div class="container mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-4">Контакты</h1>
+    <p class="text-xl text-center text-gray-600 mb-12">Свяжитесь с нами для обсуждения вашего проекта</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
         <!-- Контактная информация -->
-        <div class="bg-gray-800 rounded-2xl p-8">
-            <h3 class="text-2xl font-bold text-white mb-6">Наши контакты</h3>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Контактная информация</h2>
             <div class="space-y-6">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">📧</span>
-                    </div>
+                <div class="flex items-start">
+                    <div class="mr-4 text-2xl">📧</div>
                     <div>
-                        <p class="text-gray-400">Email</p>
-                        <p class="text-white text-lg">contact@example.com</p>
+                        <h3 class="font-bold text-gray-700">Email</h3>
+                        <p class="text-gray-600">t72trak@gmail.com</p>
+                        <p class="text-gray-500 text-sm mt-1">Ответ в течение 24 часов</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-purple-900 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">📱</span>
-                    </div>
+                <div class="flex items-start">
+                    <div class="mr-4 text-2xl">📍</div>
                     <div>
-                        <p class="text-gray-400">Телефон</p>
-                        <p class="text-white text-lg">+7 (XXX) XXX-XX-XX</p>
+                        <h3 class="font-bold text-gray-700">Часы работы</h3>
+                        <p class="text-gray-600">Пн-Пт: 9:00-18:00</p>
+                        <p class="text-gray-600">Сб-Вс: по договоренности</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-green-900 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">🕐</span>
-                    </div>
+                <div class="flex items-start">
+                    <div class="mr-4 text-2xl">💬</div>
                     <div>
-                        <p class="text-gray-400">Время работы</p>
-                        <p class="text-white text-lg">Пн-Пт: 9:00-18:00</p>
+                        <h3 class="font-bold text-gray-700">Поддержка</h3>
+                        <p class="text-gray-600">Техническая поддержка: support@example.com</p>
+                        <p class="text-gray-500 text-sm mt-1">Для существующих клиентов</p>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Форма обратной связи -->
-        <div class="bg-gray-800 rounded-2xl p-8">
-            <h3 class="text-2xl font-bold text-white mb-6">Написать нам</h3>
-            <form class="space-y-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Форма обратной связи</h2>
+            <form id="contact-form" class="space-y-4">
                 <div>
-                    <input 
-                        type="text" 
-                        placeholder="Ваше имя"
-                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    >
+                    <label for="name" class="block text-gray-700 mb-2">Имя</label>
+                    <input type="text" id="name" name="name" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <input 
-                        type="email" 
-                        placeholder="Ваш email"
-                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    >
+                    <label for="email" class="block text-gray-700 mb-2">Email</label>
+                    <input type="email" id="email" name="email" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <textarea 
-                        placeholder="Сообщение"
-                        rows="4"
-                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    ></textarea>
+                    <label for="message" class="block text-gray-700 mb-2">Сообщение</label>
+                    <textarea id="message" name="message" rows="4" required 
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
-                <button 
-                    type="submit"
-                    class="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-90"
-                >
-                    Отправить
+                <button type="submit" 
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-300">
+                    Отправить сообщение
                 </button>
             </form>
+            <p class="text-gray-500 text-sm mt-4">Мы свяжемся с вами в ближайшее время</p>
         </div>
     </div>
 </div>
+<script>
+document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value
+    };
+    // Здесь будет отправка на сервер
+    alert('Форма отправлена! Мы свяжемся с вами в ближайшее время.');
+    this.reset();
+});
+</script>
 {% endblock %}
