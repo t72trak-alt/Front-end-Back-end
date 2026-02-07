@@ -6,7 +6,7 @@ import jwt
 from datetime import datetime, timedelta
 from app.database import get_db
 from app.models import User
-from app.routers import auth, chat, projects, admin, services, services
+from app.routers import auth, chat, projects, admin, services
 from app.dependencies import get_current_user
 
 app = FastAPI(title="AI Developer Portal", version="1.0")
@@ -35,53 +35,53 @@ templates = Jinja2Templates(directory="app/templates")
 async def read_root(request: Request):
     services_list = [
         {
-            "icon": "🛠️",
-            "title": "Промпт-инжиниринг",
+            "icon": "???",
+            "title": "AI-разработка",
             "items": [
-                "Создание и оптимизация промптов для текста, изображений, аудио, видео",
-                "Разработка контекстных систем для ИИ-ассистентов",
-                "Интеграция с ChatGPT, Claude, Gemini, YandexGPT и др."
+                "Интеграция с языковыми моделями для чатов, ассистентов, ботов, игр",
+                "Создание умных агентов для веб-приложений",
+                "Взаимодействие с ChatGPT, Claude, Gemini, YandexGPT и др."
             ]
         },
         {
-            "icon": "🤖",
-            "title": "Разработка ИИ-решений",
+            "icon": "??",
+            "title": "Разработка веб-приложений",
             "items": [
-                "ИИ-ассистенты и чат-боты",
-                "Мультиагентные системы и автономные агенты",
-                "MVP ИИ-продуктов 'под ключ'"
+                "Веб-приложения с ИИ-функциями",
+                "�������������� ������� � ���������� ������",
+                "MVP ��-��������� '��� ����'"
             ]
         },
         {
-            "icon": "🏢",
-            "title": "Интеграция ИИ в бизнес",
+            "icon": "??",
+            "title": "���������� �� � ������",
             "items": [
-                "Внедрение ИИ в CRM (AmoCRM), мессенджеры, соцсети",
-                "Автоматизация маркетинга, продаж и поддержки",
-                "Создание систем аналитики на основе ИИ"
+                "��������� �� � CRM (AmoCRM), �����������, �������",
+                "������������� ����������, ������ � ���������",
+                "�������� ������ ��������� �� ������ ��"
             ]
         },
         {
-            "icon": "⚙️",
-            "title": "Автоматизация бизнес-процессов",
+            "icon": "??",
+            "title": "������������� ������-���������",
             "items": [
-                "Аудит и поиск точек для автоматизации",
-                "Создание ИИ-инструментов для HR (прескрининг резюме)",
-                "Анализ звонков, генерация контента"
+                "����� � ����� ����� ��� �������������",
+                "�������� ��-������������ ��� HR (����������� ������)",
+                "������ �������, ��������� ��������"
             ]
         }
     ]
     portfolio = [
         {
             "title": "Illustraitor AI",
-            "description": "Chrome-расширение для генерации изображений через DALL-E 3",
-            "metrics": "15+ стилей генерации, 99% uptime",
+            "description": "Chrome-���������� ��� ��������� ����������� ����� DALL-E 3",
+            "metrics": "15+ ������ ���������, 99% uptime",
             "link": "https://illustraitor-ai-v2.onrender.com"
         },
         {
-            "title": "SMM-эксперт с ИИ",
-            "description": "Автоматизация ведения соцсетей (ВКонтакте)",
-            "metrics": "Снижение времени с 4 часов до 15 минут в день",
+            "title": "SMM-������� � ��",
+            "description": "������������� ������� �������� (���������)",
+            "metrics": "�������� ������� � 4 ����� �� 15 ����� � ����",
             "link": "#"
         }
     ]
@@ -135,10 +135,10 @@ async def admin_page(request: Request):
 
 @app.get("/test-api")
 async def test_api():
-    return {"message": "API работает", "status": "ok"}
+    return {"message": "API ��������", "status": "ok"}
 
 
-# Новые страницы
+# ����� ��������
 @app.get("/services", response_class=HTMLResponse)
 async def services_page(request: Request):
     return templates.TemplateResponse("services.html", {"request": request})
@@ -153,5 +153,6 @@ async def contacts_page(request: Request):
 
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
 
 

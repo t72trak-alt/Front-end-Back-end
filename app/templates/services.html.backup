@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Услуги | AI Developer Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Навигация -->
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-xl font-bold gradient-text">AI Developer</a>
+            <div class="space-x-6">
+                <a href="/" class="hover:text-purple-400">Главная</a>
+                <a href="/services" class="text-purple-400 font-semibold">Услуги</a>
+                <a href="/pricing" class="hover:text-purple-400">Цены</a>
+                <a href="/dashboard" class="hover:text-purple-400">Личный кабинет</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Заголовок -->
+    <div class="container mx-auto px-4 py-12">
+        <h1 class="text-4xl font-bold text-center mb-4">🎯 Наши услуги</h1>
+        <p class="text-gray-400 text-center max-w-2xl mx-auto mb-12">
+            Полный цикл разработки ИИ-решений: от промпт-инжиниринга до интеграции в ваш бизнес
+        </p>
+        <!-- Сетка услуг -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8" id="services-container">
+            <!-- Услуги будут загружены через JavaScript -->
+        </div>
+    </div>
+    <!-- Футер -->
+    <footer class="bg-gray-800 p-6 mt-12">
+        <div class="container mx-auto text-center text-gray-400">
+            <p>© 2024 AI Developer Portal. Все права защищены.</p>
+            <p class="mt-2">Контакты: <a href="mailto:t72trak@gmail.com" class="text-purple-400">t72trak@gmail.com</a></p>
+        </div>
+    </footer>
+    <script>
+        async function loadServices() {
+            try {
+                const response = await fetch('/api/services');
+                const services = await response.json();
+                const container = document.getElementById('services-container');
+                container.innerHTML = services.map(service => `
+                    <div class="bg-gray-800 rounded-2xl p-6 card-hover border border-gray-700">
+                        <div class="text-4xl mb-4">${service.icon || '🛠️'}</div>
+                        <h3 class="text-xl font-bold mb-2">${service.title}</h3>
+                        <p class="text-gray-300 mb-4">${service.short_description}</p>
+                        <ul class="mb-4 space-y-2">
+                            ${(service.features || []).map(f => `<li class="text-gray-400">• ${f}</li>`).join('')}
+                        </ul>
+                        <div class="flex justify-between items-center mt-6">
+                            <div>
+                                <span class="text-lg font-semibold text-purple-400">${service.price_range}</span>
+                                <span class="text-gray-400 text-sm ml-2">${service.duration}</span>
+                            </div>
+                            <button class="px-6 py-2 gradient-bg rounded-lg font-semibold hover:opacity-90 transition"
+                                    onclick="orderService('${service.id}')">
+                                Заказать
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки услуг:', error);
+            }
+        }
+        function orderService(serviceId) {
+            if (confirm('Перейти в личный кабинет для заказа услуги?')) {
+                window.location.href = '/dashboard?order=' + serviceId;
+            }
+        }
+        // Загружаем услуги при загрузке страницы
+        document.addEventListener('DOMContentLoaded', loadServices);
+    </script>
+</body>
+</html>

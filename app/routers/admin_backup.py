@@ -1,6 +1,5 @@
 ﻿from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
 import app.database as database
 import app.models as models
 from app.dependencies import get_current_user
@@ -14,10 +13,12 @@ def get_db():
         yield db
     finally:
         db.close()
+# Проверка, что пользователь администратор
 def check_admin(user: models.User):
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Требуются права администратора")
     return user
+# Получить всех пользователей
 @router.get("/users")
 async def get_all_users(
     current_user: models.User = Depends(get_current_user),
@@ -30,6 +31,7 @@ async def get_all_users(
         "count": len(users),
         "users": users
     }
+# Получить все проекты (всех пользователей)
 @router.get("/projects")
 async def get_all_projects(
     current_user: models.User = Depends(get_current_user),
@@ -41,28 +43,4 @@ async def get_all_projects(
         "status": "success",
         "count": len(projects),
         "projects": projects
-    }
-@router.get("/stats")
-async def get_admin_stats(
-    current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    check_admin(current_user)
-    total_users = db.query(models.User).count()
-    total_projects = db.query(models.Project).count()
-    total_services = db.query(models.Service).count()
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
-    active_users = db.query(models.User).filter(
-        models.User.created_at >= thirty_days_ago
-    ).count()
-    return {
-        "status": "success",
-        "stats": {
-            "total_users": total_users,
-            "total_projects": total_projects,
-            "total_services": total_services,
-            "active_users": active_users,
-            "revenue": 0,
-            "growth_rate": 0
-        }
     }
