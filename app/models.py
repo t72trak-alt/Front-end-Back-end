@@ -10,9 +10,9 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String)
     hashed_password = Column(String)
-    salt = Column(String)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    salt = Column(String, nullable=True)
     is_admin = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Service(Base):
     __tablename__ = "services"
@@ -50,9 +50,13 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
     content = Column(Text)
     sender_id = Column(Integer, ForeignKey("users.id"))
+    receiver_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # <--- ДОБАВЛЕНО
     is_owner = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    sender = relationship("User")
+    
+    # Связи
+    sender = relationship("User", foreign_keys=[sender_id])
+    receiver = relationship("User", foreign_keys=[receiver_id])
 
 class Transaction(Base):
     __tablename__ = "transactions"

@@ -1,27 +1,83 @@
-﻿{% extends "layout.html" %}
-
-{% block title %}Главная - AI Developer Portal{% endblock %}
-
-{% block content %}
-<section class="hero">
-    <div class="hero-content">
-        <h1>Front end & Back end разработка ИИ-решений под ключ</h1>
-        <p class="subtitle">Разрабатываю технические системы и вижу их бизнес-ценность.</p>
-        <div class="hero-buttons">
-            <a href="#services" class="btn-primary">Выбрать услугу</a>
-            <a href="/register" class="btn-outline">Обсудить вашу задачу</a>
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front end & Back end | Разработка ИИ-решений под ключ</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-section { min-height: 66vh; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Навигация -->
+    <nav class="bg-gray-800 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-2xl font-bold gradient-text">Front end & Back end</div>
+            <div class="space-x-6">
+                <a href="/services" class="text-purple-300 font-semibold hover:text-white transition">Услуги</a>
+                <a href="/pricing" class="hover:text-purple-300 transition">Цены и сроки</a>
+                <a href="/contacts" class="hover:text-purple-300 transition">Контакты</a>
+                <a href="/register" class="hover:text-purple-300 transition">Регистрация</a>
+                <a href="/login" class="hover:text-purple-300 transition">Вход</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Герой-блок (2/3 страницы) -->
+    <div class="hero-section flex items-center justify-center px-4">
+        <div class="text-center max-w-4xl">
+            <!-- Крупное название сайта -->
+            <h1 class="text-6xl md:text-7xl font-bold mb-6 gradient-text">
+                Front end & Back end
+            </h1>
+            <!-- Подзаголовок -->
+            <h2 class="text-3xl md:text-4xl font-semibold mb-8 text-white">
+                Разработка ИИ-решений под ключ
+            </h2>
+            <!-- Описание -->
+            <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                Разрабатываю и внедряю технические системы, создаю для Вас бизнес-ценность.
+                Я - "Проводник" между внедряемыми технологиями и бизнес-задачами.
+            </p>
+            <!-- Кнопки -->
+            <div class="mt-12 flex flex-col sm:flex-row gap-6 justify-center">
+                <a href="/services" class="px-8 py-4 gradient-bg rounded-xl text-lg font-bold hover:opacity-90 transition shadow-2xl">
+                    🛠️ Выбрать услугу
+                </a>
+                <a href="/dashboard" class="px-8 py-4 bg-gray-800 border border-purple-500 rounded-xl text-lg font-bold hover:bg-gray-700 transition">
+                    💼 Личный кабинет
+                </a>
+            </div>
         </div>
     </div>
-</section>
-
-<section id="services">
-    <h2>Услуги</h2>
-    <div class="service-card">
-        <h3>🎯 Промпт-инжиниринг</h3>
-        <ul>
-            <li>Создание и оптимизация промптов</li>
-            <li>Интеграция с ChatGPT, Claude, Gemini</li>
-        </ul>
+    <!-- Остальной контент (услуги, портфолио и т.д.) можно оставить ниже -->
+    <div class="container mx-auto px-4 py-16">
+        <h3 class="text-3xl font-bold text-center mb-12">Наши услуги</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Карточки услуг будут здесь -->
+            <div class="bg-gray-800 p-6 rounded-2xl">
+                <div class="text-4xl mb-4">🎯</div>
+                <h4 class="text-xl font-bold mb-2">Промпт-инжиниринг</h4>
+                <p class="text-gray-400">Создание и оптимизация промптов для текста, изображений, аудио, видео.</p>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-2xl">
+                <div class="text-4xl mb-4">🤖</div>
+                <h4 class="text-xl font-bold mb-2">Разработка ИИ-решений</h4>
+                <p class="text-gray-400">ИИ-ассистенты и чат-боты, MVP ИИ-продуктов "под ключ".</p>
+            </div>
+        </div>
     </div>
-</section>
-{% endblock %}
+    <!-- Футер -->
+    <footer class="bg-gray-800 p-8 mt-16">
+        <div class="container mx-auto text-center text-gray-400">
+            <p class="text-lg">© 2024 Front end & Back end. Все права защищены.</p>
+            <p class="mt-4">Контакты: <a href="mailto:t72trak@gmail.com" class="text-purple-400">t72trak@gmail.com</a> | Telegram: @example</p>
+        </div>
+    </footer>
+</body>
+</html>
+
+
+

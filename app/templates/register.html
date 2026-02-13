@@ -1,96 +1,268 @@
-﻿<!DOCTYPE html>
-<html lang="ru">
-{% extends "layout.html" %}
+﻿{% extends "layout.html" %}
+{% block title %}Регистрация - AI Developer Portal{% endblock %}
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <div class="text-center mb-12">
-        <h2 class="text-5xl font-bold text-white mb-6">Регистрация</h2>
-        <p class="text-gray-400 text-xl">Создайте аккаунт для доступа к сервису</p>
-    </div>
-    <div class="bg-gray-800 rounded-3xl p-10 shadow-2xl">
-        <form action="/api/auth/register" method="POST" class="space-y-8">
-            <!-- Имя -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">👤</span>
-                        Имя
-                    </span>
-                </label>
-                <input 
-                    type="text" 
-                    name="name"
-                    required
-                    placeholder="Ваше полное имя"
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
-                >
+<style>
+    .register-page {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+        padding: 40px 20px;
+    }
+    .register-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .register-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        padding: 60px 50px;
+        border: 1px solid #e2e8f0;
+    }
+    .register-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+    .register-title {
+        font-size: 42px;
+        font-weight: 800;
+        color: #1a202c;
+        margin-bottom: 15px;
+        letter-spacing: -0.5px;
+    }
+    .register-subtitle {
+        font-size: 20px;
+        color: #4a5568;
+        font-weight: 400;
+    }
+    .register-form {
+        width: 100%;
+    }
+    .form-group {
+        margin-bottom: 25px;
+    }
+    .form-label {
+        display: block;
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+    .form-input {
+        width: 100%;
+        padding: 18px 22px;
+        font-size: 18px;
+        border: 2px solid #cbd5e0;
+        border-radius: 12px;
+        background: #f7fafc;
+        color: #2d3748;
+        transition: all 0.3s ease;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #4299e1;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.15);
+    }
+    .register-button {
+        width: 100%;
+        padding: 20px;
+        font-size: 20px;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+    .register-button:hover {
+        background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(47, 133, 90, 0.3);
+    }
+    .register-footer {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 30px;
+        border-top: 2px solid #e2e8f0;
+    }
+    .login-link {
+        font-size: 18px;
+        color: #4299e1;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .login-link:hover {
+        color: #3182ce;
+        text-decoration: underline;
+    }
+    .error-message {
+        background: #fed7d7;
+        color: #c53030;
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        border: 2px solid #fc8181;
+        display: none;
+    }
+    .success-message {
+        background: #c6f6d5;
+        color: #22543d;
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        border: 2px solid #9ae6b4;
+        display: none;
+    }
+    .password-requirements {
+        font-size: 14px;
+        color: #718096;
+        margin-top: 5px;
+    }
+    @media (max-width: 768px) {
+        .register-card {
+            padding: 40px 30px;
+            margin: 0 15px;
+        }
+        .register-title {
+            font-size: 36px;
+        }
+    }
+</style>
+<div class="register-page">
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <h1 class="register-title">Регистрация</h1>
+                <p class="register-subtitle">Создайте новый аккаунт</p>
             </div>
-            <!-- Email -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">📧</span>
-                        Email
-                    </span>
-                </label>
-                <input 
-                    type="email" 
-                    name="email"
-                    required
-                    placeholder="ваш@email.com"
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
-                >
-            </div>
-            <!-- Пароль -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">🔒</span>
-                        Пароль
-                    </span>
-                </label>
-                <input 
-                    type="password" 
-                    name="password"
-                    required
-                    placeholder="Создайте надёжный пароль"
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all"
-                >
-            </div>
-            <!-- Задача (необязательно) -->
-            <div>
-                <label class="block text-xl font-semibold text-white mb-4 text-center">
-                    <span class="flex items-center justify-center gap-2">
-                        <span class="text-2xl">🎯</span>
-                        Какую задачу хотите решить? (необязательно)
-                    </span>
-                </label>
-                <textarea 
-                    name="task"
-                    rows="3"
-                    placeholder="Опишите вашу задачу или проект..."
-                    class="w-full px-8 py-5 bg-gray-700 border-2 border-gray-600 rounded-2xl text-white text-xl text-center focus:outline-none focus:border-blue-500 transition-all resize-none"
-                ></textarea>
-            </div>
-            <!-- Кнопка регистрации -->
-            <div class="pt-6">
-                <button 
-                    type="submit"
-                    class="w-full py-6 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-2xl font-bold rounded-2xl hover:opacity-90 hover:scale-[1.02] transition-all duration-300 shadow-lg"
-                >
-                    🚀 ЗАРЕГИСТРИРОВАТЬСЯ
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+            <form id="registerForm" class="register-form">
+                <div class="form-group">
+                    <label for="name" class="form-label">Имя</label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           class="form-input" 
+                           placeholder="Ваше имя"
+                           required
+                           autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           class="form-input" 
+                           placeholder="ваш@email.com"
+                           required
+                           autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Пароль</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-input" 
+                           placeholder="••••••••"
+                           required
+                           autocomplete="new-password"
+                           minlength="6">
+                    <p class="password-requirements">Минимум 6 символов</p>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Подтвердите пароль</label>
+                    <input type="password" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           class="form-input" 
+                           placeholder="••••••••"
+                           required
+                           autocomplete="new-password">
+                </div>
+                <button type="submit" class="register-button">
+                    ЗАРЕГИСТРИРОВАТЬСЯ
                 </button>
-            </div>
-            <!-- Ссылка на вход -->
-            <div class="text-center pt-8">
-                <p class="text-gray-400 text-xl">
+            </form>
+            <div class="register-footer">
+                <p style="font-size: 18px; color: #4a5568;">
                     Уже есть аккаунт? 
-                    <a href="/login" class="text-blue-400 hover:text-blue-300 font-semibold text-xl underline decoration-2">
-                        Войти
-                    </a>
+                    <a href="/login" class="login-link">Войти</a>
                 </p>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    // Валидация
+    if (password !== confirmPassword) {
+        showError('Пароли не совпадают');
+        return;
+    }
+    if (password.length < 6) {
+        showError('Пароль должен содержать минимум 6 символов');
+        return;
+    }
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    // Показываем загрузку
+    submitBtn.textContent = 'Регистрация...';
+    submitBtn.disabled = true;
+    // Скрываем предыдущие сообщения
+    document.getElementById('errorMessage').style.display = 'none';
+    document.getElementById('successMessage').style.display = 'none';
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await response.json();
+        if (response.ok) {
+            // Показываем успешное сообщение
+            showSuccess('Регистрация успешна! Перенаправляем на страницу входа...');
+            // Перенаправляем через 2 секунды
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+        } else {
+            showError(data.detail || 'Ошибка регистрации');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        showError('Ошибка сети. Попробуйте еще раз.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+function showSuccess(message) {
+    const successDiv = document.getElementById('successMessage');
+    successDiv.textContent = message;
+    successDiv.style.display = 'block';
+}
+// Фокус на поле имени при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('name').focus();
+});
+</script>
 {% endblock %}

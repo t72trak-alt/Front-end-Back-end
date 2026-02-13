@@ -1,136 +1,1097 @@
-﻿{% extends "layout.html" %}
-{% block title %}Панель администратора{% endblock %}
-{% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">👑 Панель администратора</h1>
-    <div class="row">
-        <!-- Статистика -->
-        <div class="col-md-3 mb-4">
-            <div class="card bg-dark border-primary">
-                <div class="card-body">
-                    <h5 class="card-title">👥 Пользователи</h5>
-                    <h2 id="users-count">0</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-4">
-            <div class="card bg-dark border-primary">
-                <div class="card-body">
-                    <h5 class="card-title">📁 Проекты</h5>
-                    <h2 id="projects-count">0</h2>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Таблица пользователей -->
-    <div class="card bg-dark border-secondary mb-4">
-        <div class="card-header">
-            <h4>Пользователи</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-dark table-hover" id="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Имя</th>
-                            <th>Email</th>
-                            <th>Админ</th>
-                            <th>Дата регистрации</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-body">
-                        <!-- Данные загрузятся через JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <!-- Таблица проектов -->
-    <div class="card bg-dark border-secondary">
-        <div class="card-header">
-            <h4>Проекты</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-dark table-hover" id="projects-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Название</th>
-                            <th>Описание</th>
-                            <th>Статус</th>
-                            <th>Пользователь</th>
-                            <th>Дата создания</th>
-                        </tr>
-                    </thead>
-                    <tbody id="projects-body">
-                        <!-- Данные загрузятся через JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- JavaScript для загрузки данных -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    loadAdminData();
-    async function loadAdminData() {
-        try {
-            // Загружаем пользователей
-            const usersResponse = await fetch('/api/admin/users');
-            const usersData = await usersResponse.json();
-            // Загружаем проекты
-            const projectsResponse = await fetch('/api/admin/projects');
-            const projectsData = await projectsResponse.json();
-            // Обновляем счетчики
-            document.getElementById('users-count').textContent = usersData.count;
-            document.getElementById('projects-count').textContent = projectsData.count;
-            // Заполняем таблицу пользователей
-            const usersBody = document.getElementById('users-body');
-            usersBody.innerHTML = '';
-            usersData.users.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.id}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${user.is_admin ? '✅' : '❌'}</td>
-                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                `;
-                usersBody.appendChild(row);
-            });
-            // Заполняем таблицу проектов
-            const projectsBody = document.getElementById('projects-body');
-            projectsBody.innerHTML = '';
-            projectsData.projects.forEach(project => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${project.id}</td>
-                    <td>${project.title}</td>
-                    <td>${project.description || '-'}</td>
-                    <td><span class="badge ${project.status === 'active' ? 'bg-success' : 'bg-warning'}">${project.status}</span></td>
-                    <td>ID: ${project.user_id}</td>
-                    <td>${new Date(project.created_at).toLocaleDateString()}</td>
-                `;
-                projectsBody.appendChild(row);
-            });
-        } catch (error) {
-            console.error('Ошибка загрузки данных:', error);
-            alert('Ошибка загрузки данных администратора. Проверьте права доступа.');
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора - AI Developer Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/chat-fix.css">
+    <style>
+        .sidebar { transition: all 0.3s; }
+        .chat-panel { transition: all 0.3s; }
+        .active-tab { background-color: #3b82f6; color: white; }
+        .active-tab span { color: white !important; }
+        .message-admin { background-color: #3b82f6; color: white; margin-left: auto; }
+        .message-user { background-color: #e5e7eb; color: #1f2937; }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        
+        #chat-input {
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            opacity: 1 !important;
+            font-weight: 400 !important;
+            background-color: #ffffff !important;
         }
-    }
-});
-</script>
-<style>
-.table-responsive {
-    max-height: 400px;
-    overflow-y: auto;
-}
-.badge {
-    font-size: 0.8em;
-    padding: 4px 8px;
-}
-</style>
-{% endblock %}
+        
+        #chat-input::placeholder {
+            color: #666666 !important;
+            opacity: 1 !important;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            background-color: #f3f4f6;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .data-table tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .ws-connected { color: #10b981; }
+        .ws-disconnected { color: #ef4444; }
+        .ws-connecting { color: #f59e0b; }
+        
+        .message-edit-mode {
+            background-color: #fef3c7 !important;
+            border: 2px solid #f59e0b !important;
+        }
+        
+        .edit-textarea {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            background-color: #fff9e6;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .edit-textarea:focus {
+            outline: none;
+            border-color: #d97706;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+        
+        .edit-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .edit-save-btn {
+            background-color: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .edit-save-btn:hover {
+            background-color: #059669;
+        }
+        
+        .edit-cancel-btn {
+            background-color: #6b7280;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .edit-cancel-btn:hover {
+            background-color: #4b5563;
+        }
+        
+        .stat-highlight {
+            animation: statPulse 0.5s ease-in-out;
+        }
+        
+        @keyframes statPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #8b5cf6; }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-blue-600 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-xl font-bold">AI Developer Portal - Админ-панель</h1>
+                <span class="bg-blue-800 px-3 py-1 rounded-full text-sm">Администратор</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="admin-email" class="font-medium">Загрузка...</span>
+                <a href="/dashboard" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded transition">В личный кабинет</a>
+                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">Выход</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mx-auto flex mt-4 gap-4" style="min-height: calc(100vh - 140px);">
+        <div class="sidebar w-64 bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
+            <h2 class="text-lg font-bold mb-4 text-gray-700 border-b pb-2">📊 Навигация</h2>
+            <div class="space-y-1">
+                <button onclick="loadTab('users')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-users">
+                    <span class="mr-2 text-gray-700">👤</span> <span class="text-gray-800">Пользователи</span>
+                </button>
+                <button onclick="loadTab('projects')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-projects">
+                    <span class="mr-2 text-gray-700">📁</span> <span class="text-gray-800">Проекты</span>
+                </button>
+                <button onclick="loadTab('services')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-services">
+                    <span class="mr-2 text-gray-700">🔧</span> <span class="text-gray-800">Услуги</span>
+                </button>
+                <button onclick="loadTab('transactions')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-transactions">
+                    <span class="mr-2 text-gray-700">💰</span> <span class="text-gray-800">Платежи</span>
+                </button>
+                <button onclick="loadTab('statistics')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-statistics">
+                    <span class="mr-2 text-gray-700">📈</span> <span class="text-gray-800">Статистика</span>
+                </button>
+                <button onclick="loadTab('settings')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-settings">
+                    <span class="mr-2 text-gray-700">⚙️</span> <span class="text-gray-800">Настройки</span>
+                </button>
+            </div>
+            
+            <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                <h3 class="font-bold mb-3 text-gray-700 flex items-center">
+                    <span class="mr-2">🚀</span> Быстрая статистика
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">👤 Пользователи:</span>
+                        <span id="stats-users" class="font-bold text-blue-600 text-lg">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">📁 Проекты:</span>
+                        <span id="stats-projects" class="font-bold text-green-600 text-lg">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">🛠️ Услуги:</span>
+                        <span id="stats-services" class="font-bold text-yellow-600 text-lg">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">💬 Сообщения:</span>
+                        <span id="stats-messages" class="font-bold text-purple-600 text-lg">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600">💰 Транзакции:</span>
+                        <span id="stats-transactions" class="font-bold text-red-600 text-lg">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex-1 bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
+            <div class="p-5 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-blue-200 shadow-sm mb-6">
+                <h3 class="text-lg font-bold text-blue-800 mb-3 flex items-center">
+                    <span class="mr-2">👨‍💻</span> Панель разработчика
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                    <button onclick="testWebSocket()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition flex items-center justify-center">
+                        <span class="mr-2">🔌</span> Тест WebSocket
+                    </button>
+                    <button onclick="clearCache()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition flex items-center justify-center">
+                        <span class="mr-2">🧹</span> Очистить кэш
+                    </button>
+                    <button onclick="reloadData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition flex items-center justify-center">
+                        <span class="mr-2">🔄</span> Обновить данные
+                    </button>
+                </div>
+                <div class="bg-gray-900 text-green-400 rounded-lg p-3 font-mono text-sm h-40 overflow-y-auto mb-6" id="dev-console">
+                    <div class="text-gray-400">// Консоль разработчика</div>
+                    <div>> Система инициализируется...</div>
+                </div>
+            </div>
+
+            <div id="content-area" class="mt-6">
+                <div class="text-center py-10 text-gray-500">
+                    <div class="text-4xl mb-4">👈</div>
+                    <p class="text-xl">Выберите раздел в левом меню</p>
+                    <p class="text-sm mt-2">Здесь будет отображаться содержимое выбранной вкладки</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-panel w-80 bg-white rounded-lg shadow-lg flex flex-col">
+            <div class="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-lg font-bold text-gray-700 flex items-center">
+                        <span class="mr-2">💬</span> Чат поддержки
+                    </h2>
+                    <span id="chat-status" class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Онлайн
+                    </span>
+                </div>
+                <div class="flex space-x-2 mb-3">
+                    <div class="relative flex-1">
+                        <input type="text" id="chat-search" placeholder="Поиск пользователя..."
+                               class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                               onfocus="loadUserDropdown()" oninput="filterUsers()">
+                        <div id="user-dropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto hidden">
+                            <div class="p-2 text-gray-500 text-center">Загрузка пользователей...</div>
+                        </div>
+                    </div>
+                    <button onclick="refreshChatList()" class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition">
+                        🔄
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1 flex flex-col p-3" id="chat-window">
+                <div class="flex-1 overflow-y-auto mb-3 p-3 bg-gray-50 rounded-lg" id="chat-messages-container">
+                    <div class="text-center py-8 text-gray-400">
+                        <div class="text-3xl mb-2">💬</div>
+                        <p>Выберите пользователя для начала общения</p>
+                    </div>
+                </div>
+                <div class="border-t pt-3">
+                    <div class="flex space-x-2 mb-2 items-stretch">
+                        <textarea id="chat-input" placeholder="Введите сообщение..." 
+                                  class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none" 
+                                  rows="2" onkeydown="handleChatKeydown(event)"></textarea>
+                        <button onclick="sendAdminMessage()" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition flex items-center justify-center whitespace-nowrap font-medium h-auto">
+                            Отправить
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button onclick="editLastMessage()" class="text-sm text-gray-500 hover:text-gray-700">
+                            ✏️ Редактировать сообщение
+                        </button>
+                        <div class="text-xs text-gray-400">
+                            Enter - отправить, Shift+Enter - новая строка
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="bg-gray-800 text-white p-4 mt-4">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p>© 2024 Front end & Back end. Все права защищены.</p>
+                <div class="mt-2 md:mt-0 text-sm text-gray-400">
+                    <span>Версия: 2.0.0 | </span>
+                    <span>Сервер: <span id="server-status" class="text-green-400">🟢 Работает</span> | </span>
+                    <span>WebSocket: <span id="ws-status" class="text-yellow-500">🟡 Подключение...</span></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+        let adminWebSocket = null;
+        let activeChatUser = null;
+        let lastMessageId = null;
+        let reconnectAttempts = 0;
+        let editMode = false;
+        let editingMessageDiv = null;
+        let editingContentDiv = null;
+        let originalMessageContent = '';
+        const MAX_RECONNECT_ATTEMPTS = 10;
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('%c🔍 АДМИН-ПАНЕЛЬ: ИНИЦИАЛИЗАЦИЯ', 'background: #2563eb; color: white; font-size: 14px; padding: 4px;');
+            
+            const token = localStorage.getItem('access_token');
+            const userId = localStorage.getItem('user_id');
+            
+            if (!token) {
+                console.error('%c❌ ТОКЕН ОТСУТСТВУЕТ', 'background: #dc2626; color: white;');
+                showNotification('❌ Ошибка авторизации', 'error');
+                setTimeout(() => { window.location.href = '/login'; }, 2000);
+                return;
+            }
+            
+            if (!userId || userId !== '1') {
+                console.error('%c❌ НЕ АДМИНИСТРАТОР', 'background: #dc2626; color: white;');
+                showNotification('⛔ Доступ запрещён', 'error');
+                setTimeout(() => { window.location.href = '/dashboard'; }, 2000);
+                return;
+            }
+            
+            fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            })
+            .then(data => {
+                if (!data.is_admin) {
+                    throw new Error('Не администратор');
+                }
+                initializeAdminPanel();
+            })
+            .catch(error => {
+                console.error('❌ Ошибка валидации:', error);
+                showNotification('❌ Ошибка авторизации', 'error');
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_email');
+                localStorage.removeItem('user_name');
+                setTimeout(() => { window.location.href = '/login'; }, 2000);
+            });
+        });
+
+        function initializeAdminPanel() {
+            console.log('%c🚀 ЗАПУСК АДМИН-ПАНЕЛИ', 'background: #2563eb; color: white;');
+            
+            const usersTab = document.getElementById('tab-users');
+            if (usersTab) usersTab.classList.add('active-tab');
+            
+            updateAdminEmail();
+            loadQuickStats();
+            connectAdminWebSocket();
+            
+            logToConsole('✅ Админ-панель успешно инициализирована');
+            logToConsole('👤 Администратор: ' + localStorage.getItem('user_email'));
+            showNotification('✅ Админ-панель загружена', 'success');
+        }
+
+        function updateAdminEmail() {
+            const adminEmail = localStorage.getItem('user_email');
+            const emailElement = document.getElementById('admin-email');
+            if (emailElement) {
+                emailElement.textContent = adminEmail || 't72trak@gmail.com';
+            }
+        }
+
+        function logout() {
+            console.log('🚪 Выход из системы');
+            if (adminWebSocket) {
+                adminWebSocket.close();
+            }
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_email');
+            localStorage.removeItem('user_name');
+            window.location.href = '/login';
+        }
+
+        async function loadQuickStats() {
+            console.log('📊 Загрузка быстрой статистики...');
+            
+            try {
+                let users = 0, projects = 0, services = 0, messages = 0, transactions = 0;
+                const token = localStorage.getItem('access_token');
+                
+                try {
+                    const usersRes = await fetch('/api/admin/users', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (usersRes.ok) {
+                        const usersData = await usersRes.json();
+                        users = usersData.count || 0;
+                    }
+                } catch(e) { console.log('Ошибка загрузки пользователей:', e); }
+                
+                try {
+                    const projectsRes = await fetch('/api/admin/projects', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (projectsRes.ok) {
+                        const projectsData = await projectsRes.json();
+                        projects = projectsData.count || 0;
+                    }
+                } catch(e) { console.log('Ошибка загрузки проектов:', e); }
+                
+                try {
+                    const servicesRes = await fetch('/api/admin/services', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (servicesRes.ok) {
+                        const servicesData = await servicesRes.json();
+                        services = servicesData.count || 0;
+                    }
+                } catch(e) { console.log('Ошибка загрузки услуг:', e); }
+                
+                try {
+                    const messagesRes = await fetch('/api/chat/stats/total');
+                    if (messagesRes.ok) {
+                        const messagesData = await messagesRes.json();
+                        messages = messagesData.total || 0;
+                    }
+                } catch(e) { console.log('Ошибка загрузки сообщений:', e); }
+                
+                document.getElementById('stats-users').textContent = users;
+                document.getElementById('stats-projects').textContent = projects;
+                document.getElementById('stats-services').textContent = services;
+                document.getElementById('stats-messages').textContent = messages;
+                document.getElementById('stats-transactions').textContent = transactions;
+                
+                logToConsole(`📊 Статистика: ${users} пользователей, ${projects} проектов, ${services} услуг, ${messages} сообщений`);
+                
+            } catch (error) {
+                console.error('❌ Ошибка загрузки статистики:', error);
+                logToConsole('❌ Ошибка загрузки статистики');
+            }
+        }
+
+        // ===== НОВАЯ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ СТАТИСТИКИ СООБЩЕНИЙ =====
+        function updateMessageStats() {
+            const statsMessages = document.getElementById('stats-messages');
+            if (statsMessages) {
+                let currentCount = parseInt(statsMessages.textContent) || 0;
+                statsMessages.textContent = currentCount + 1;
+                
+                // Добавляем анимацию для визуального подтверждения
+                statsMessages.classList.add('stat-highlight');
+                setTimeout(() => {
+                    statsMessages.classList.remove('stat-highlight');
+                }, 500);
+                
+                logToConsole('📊 Статистика сообщений обновлена: ' + (currentCount + 1));
+                
+                // Дополнительно синхронизируем с сервером для точности
+                setTimeout(() => {
+                    fetch('/api/chat/stats/total')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (statsMessages) {
+                                statsMessages.textContent = data.total || 0;
+                            }
+                        })
+                        .catch(error => console.log('Ошибка синхронизации статистики:', error));
+                }, 1000);
+            }
+        }
+
+        async function loadTab(tabName) {
+            console.log('📁 Загрузка вкладки:', tabName);
+            logToConsole(`📁 Загрузка раздела "${tabName}"...`);
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active-tab');
+            });
+            
+            const currentTab = document.getElementById('tab-' + tabName);
+            if (currentTab) {
+                currentTab.classList.add('active-tab');
+            }
+            
+            document.getElementById('content-area').innerHTML = `
+                <div class="flex flex-col items-center justify-center py-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                    <p class="text-gray-600">Загрузка раздела "${tabName}"...</p>
+                </div>
+            `;
+            
+            try {
+                const token = localStorage.getItem('access_token');
+                
+                switch(tabName) {
+                    case 'users':
+                        await loadUsersTab(token);
+                        break;
+                    case 'projects':
+                        await loadProjectsTab(token);
+                        break;
+                    case 'services':
+                        await loadServicesTab(token);
+                        break;
+                    case 'transactions':
+                        await loadTransactionsTab(token);
+                        break;
+                    case 'statistics':
+                        await loadStatisticsTab(token);
+                        break;
+                    case 'settings':
+                        await loadSettingsTab(token);
+                        break;
+                    default:
+                        document.getElementById('content-area').innerHTML = '<p class="text-red-500">Неизвестная вкладка</p>';
+                }
+                
+                logToConsole(`✅ Вкладка "${tabName}" загружена`);
+                
+            } catch (error) {
+                console.error('❌ Ошибка загрузки вкладки:', error);
+                document.getElementById('content-area').innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <h3 class="text-red-800 font-bold text-lg mb-2">⚠️ Ошибка загрузки</h3>
+                        <p class="text-red-600 mb-4">Не удалось загрузить раздел "${tabName}"</p>
+                        <div class="bg-red-100 p-3 rounded text-sm text-red-800 mb-4">
+                            <strong>Детали:</strong> ${error.message}
+                        </div>
+                        <button onclick="loadTab('${tabName}')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition">
+                            Попробовать снова
+                        </button>
+                    </div>
+                `;
+                logToConsole(`❌ Ошибка загрузки "${tabName}": ${error.message}`);
+            }
+        }
+
+        // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ЧАТОМ ==========
+        function loadUserDropdown() {
+            const dropdown = document.getElementById('user-dropdown');
+            if (!dropdown) return;
+            dropdown.classList.remove('hidden');
+            
+            const token = localStorage.getItem('access_token');
+            
+            fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    const users = data.users || [];
+                    if (users.length === 0) {
+                        dropdown.innerHTML = '<div class="p-2 text-gray-500 text-center">Нет пользователей</div>';
+                        return;
+                    }
+                    let html = '';
+                    users.forEach(user => {
+                        const userName = user.name || user.email || 'Пользователь';
+                        const safeName = userName.replace(/'/g, "\\'");
+                        const safeEmail = user.email.replace(/'/g, "\\'");
+                        html += 
+                            '<div class="p-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 user-item"' +
+                            '     data-user-id="' + user.id + '"' +
+                            '     data-user-name="' + userName + '"' +
+                            '     data-user-email="' + user.email + '"' +
+                            '     onclick="selectUserForChat(' + user.id + ', \'' + safeName + '\', \'' + safeEmail + '\')">' +
+                            '    <div class="font-medium">' + userName + '</div>' +
+                            '    <div class="text-xs text-gray-500">' + user.email + '</div>' +
+                            '</div>';
+                    });
+                    dropdown.innerHTML = html;
+                    logToConsole('👥 Загружено пользователей: ' + users.length);
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки пользователей:', error);
+                    dropdown.innerHTML = '<div class="p-2 text-red-500 text-center">Ошибка загрузки</div>';
+                    logToConsole('❌ Ошибка загрузки пользователей');
+                });
+        }
+
+        function filterUsers() {
+            const searchInput = document.getElementById('chat-search').value.toLowerCase();
+            const userItems = document.querySelectorAll('.user-item');
+            userItems.forEach(item => {
+                const name = item.getAttribute('data-user-name').toLowerCase();
+                const email = item.getAttribute('data-user-email').toLowerCase();
+                if (name.includes(searchInput) || email.includes(searchInput)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectUserForChat(userId, userName, userEmail) {
+            document.getElementById('chat-search').value = userName;
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+            
+            activeChatUser = {
+                id: userId,
+                name: userName,
+                email: userEmail
+            };
+            
+            loadChatHistory(userId);
+            logToConsole('💬 Выбран пользователь: ' + userName);
+        }
+
+        function loadChatHistory(userId) {
+            const messagesContainer = document.getElementById('chat-messages-container');
+            if (!messagesContainer) return;
+            
+            messagesContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-10">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+                    <p class="text-gray-600">Загрузка истории сообщений...</p>
+                </div>
+            `;
+            
+            fetch('/api/chat/history/' + userId, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .then(messages => {
+                    let html = '';
+                    if (messages.length === 0) {
+                        html = `
+                            <div class="text-center py-8 text-gray-400">
+                                <div class="text-3xl mb-2">💬</div>
+                                <p>История сообщений пуста</p>
+                                <p class="text-sm mt-2">Начните диалог первым сообщением</p>
+                            </div>
+                        `;
+                    } else {
+                        messages.forEach(msg => {
+                            const isAdmin = msg.sender_id === 0;
+                            const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const bubbleClass = isAdmin ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-800';
+                            const align = isAdmin ? 'justify-end' : 'justify-start';
+                            
+                            html += `
+                                <div class="flex ${align} mb-3">
+                                    <div class="max-w-xs md:max-w-md lg:max-w-lg ${bubbleClass} rounded-lg p-3">
+                                        <div class="message-content">${msg.content}</div>
+                                        <div class="text-xs opacity-70 mt-1 text-right">${time}</div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    messagesContainer.innerHTML = html;
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    logToConsole(`💬 Загружено сообщений: ${messages.length}`);
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки истории:', error);
+                    messagesContainer.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                            <p class="text-red-600 font-medium">❌ Ошибка загрузки истории сообщений</p>
+                            <p class="text-sm text-gray-500 mt-2">${error.message}</p>
+                        </div>
+                    `;
+                    logToConsole('❌ Ошибка загрузки истории чата');
+                });
+        }
+
+        function sendAdminMessage() {
+            if (!activeChatUser) {
+                alert('Выберите пользователя для отправки сообщения');
+                return;
+            }
+            
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            if (adminWebSocket && adminWebSocket.readyState === WebSocket.OPEN) {
+                const messageData = {
+                    type: 'admin_message',
+                    user_id: activeChatUser.id,
+                    content: message,
+                    timestamp: new Date().toISOString()
+                };
+                
+                adminWebSocket.send(JSON.stringify(messageData));
+                
+                const messagesContainer = document.getElementById('chat-messages-container');
+                const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                // Создаем элемент сообщения
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'flex justify-end mb-3';
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs md:max-w-md lg:max-w-lg bg-blue-100 text-blue-800 rounded-lg p-3">
+                        <div class="message-content">${message}</div>
+                        <div class="text-xs opacity-70 mt-1 text-right">${time}</div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                input.value = '';
+                logToConsole('📤 Отправлено сообщение пользователю ' + activeChatUser.name);
+                
+                // ОБНОВЛЯЕМ СТАТИСТИКУ ПОСЛЕ ОТПРАВКИ
+                updateMessageStats();
+            } else {
+                alert('WebSocket не подключен. Перезагрузите страницу.');
+                logToConsole('❌ WebSocket не подключен');
+                connectAdminWebSocket();
+            }
+        }
+
+        function handleChatKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendAdminMessage();
+            }
+        }
+
+        function refreshChatList() {
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                loadUserDropdown();
+            }
+            logToConsole('🔄 Список пользователей обновлен');
+        }
+
+        function connectAdminWebSocket() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                console.error('❌ Нет User ID для WebSocket');
+                return;
+            }
+            
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = wsProtocol + '//' + window.location.host + '/api/chat/ws/chat/0';
+            
+            console.log('🔌 Подключение к WebSocket:', wsUrl);
+            logToConsole('🔌 Подключение к WebSocket...');
+            
+            try {
+                adminWebSocket = new WebSocket(wsUrl);
+                
+                adminWebSocket.onopen = function() {
+                    console.log('✅ WebSocket подключен (админ)');
+                    logToConsole('✅ WebSocket подключен');
+                    
+                    const wsStatus = document.getElementById('ws-status');
+                    if (wsStatus) {
+                        wsStatus.innerHTML = '🟢 Подключен';
+                        wsStatus.className = 'text-green-400';
+                    }
+                    
+                    reconnectAttempts = 0;
+                };
+                
+                adminWebSocket.onclose = function(event) {
+                    console.log('❌ WebSocket отключен:', event.code, event.reason);
+                    logToConsole('❌ WebSocket отключен');
+                    
+                    const wsStatus = document.getElementById('ws-status');
+                    if (wsStatus) {
+                        wsStatus.innerHTML = '🔴 Отключен';
+                        wsStatus.className = 'text-red-400';
+                    }
+                    
+                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectAttempts++;
+                        const delay = Math.min(1000 * reconnectAttempts, 10000);
+                        console.log(`🔄 Переподключение через ${delay/1000}с... (попытка ${reconnectAttempts})`);
+                        logToConsole(`🔄 Переподключение через ${delay/1000}с...`);
+                        setTimeout(connectAdminWebSocket, delay);
+                    }
+                };
+                
+                adminWebSocket.onerror = function(error) {
+                    console.error('⚠️ Ошибка WebSocket:', error);
+                    logToConsole('⚠️ Ошибка WebSocket');
+                };
+                
+                adminWebSocket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.type === 'new_message') {
+                            if (activeChatUser && activeChatUser.id === data.user_id) {
+                                const messagesContainer = document.getElementById('chat-messages-container');
+                                const time = new Date(data.timestamp || data.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                
+                                messagesContainer.innerHTML += `
+                                    <div class="flex justify-start mb-3">
+                                        <div class="max-w-xs md:max-w-md lg:max-w-lg bg-gray-200 text-gray-800 rounded-lg p-3">
+                                            <div class="message-content">${data.content}</div>
+                                            <div class="text-xs opacity-70 mt-1 text-right">${time}</div>
+                                        </div>
+                                    </div>
+                                `;
+                                
+                                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                                logToConsole('📩 Новое сообщение от ' + activeChatUser.name);
+                                showNotification(`Новое сообщение от ${activeChatUser.name}`, 'info');
+                            }
+                            
+                            // ОБНОВЛЯЕМ СТАТИСТИКУ ПРИ ПОЛУЧЕНИИ НОВОГО СООБЩЕНИЯ
+                            updateMessageStats();
+                        }
+                    } catch (error) {
+                        console.error('Ошибка обработки сообщения:', error);
+                    }
+                };
+            } catch (error) {
+                console.error('❌ Ошибка создания WebSocket:', error);
+                logToConsole('❌ Ошибка создания WebSocket');
+            }
+        }
+
+        // ========== ФУНКЦИЯ РЕДАКТИРОВАНИЯ СООБЩЕНИЯ ==========
+        function editLastMessage() {
+            if (!activeChatUser) {
+                showNotification('Сначала выберите пользователя в чате', 'warning');
+                return;
+            }
+            
+            // Если уже в режиме редактирования, выходим из него
+            if (editMode) {
+                cancelEdit();
+                return;
+            }
+            
+            // Находим последнее сообщение администратора
+            const messagesContainer = document.getElementById('chat-messages-container');
+            const adminMessages = messagesContainer.querySelectorAll('.bg-blue-100');
+            
+            if (adminMessages.length === 0) {
+                showNotification('Нет сообщений для редактирования', 'warning');
+                return;
+            }
+            
+            // Берем последнее сообщение администратора
+            editingMessageDiv = adminMessages[adminMessages.length - 1];
+            editingContentDiv = editingMessageDiv.querySelector('.message-content');
+            
+            if (!editingContentDiv) return;
+            
+            originalMessageContent = editingContentDiv.textContent;
+            
+            // Входим в режим редактирования
+            editMode = true;
+            
+            // Подсвечиваем редактируемое сообщение
+            editingMessageDiv.classList.add('message-edit-mode');
+            
+            // Создаем поле для редактирования
+            const editTextarea = document.createElement('textarea');
+            editTextarea.value = originalMessageContent;
+            editTextarea.className = 'edit-textarea';
+            editTextarea.rows = 3;
+            
+            // Создаем контейнер для кнопок
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'edit-buttons';
+            buttonContainer.innerHTML = `
+                <button onclick="saveEdit()" class="edit-save-btn">✅ Сохранить</button>
+                <button onclick="cancelEdit()" class="edit-cancel-btn">❌ Отмена</button>
+            `;
+            
+            // Заменяем содержимое на поле редактирования и кнопки
+            editingContentDiv.innerHTML = '';
+            editingContentDiv.appendChild(editTextarea);
+            editingContentDiv.appendChild(buttonContainer);
+            
+            // Устанавливаем фокус на поле ввода
+            editTextarea.focus();
+            
+            // Меняем текст кнопки
+            const editButton = document.querySelector('button[onclick="editLastMessage()"]');
+            editButton.innerHTML = '❌ Отмена';
+            
+            showNotification('Редактирование сообщения. Нажмите "Сохранить" для подтверждения.', 'info');
+            logToConsole('✏️ Режим редактирования активирован');
+        }
+
+        function saveEdit() {
+            if (!editingContentDiv) return;
+            
+            const textarea = editingContentDiv.querySelector('textarea');
+            if (!textarea) return;
+            
+            const newMessage = textarea.value.trim();
+            
+            if (!newMessage) {
+                showNotification('Сообщение не может быть пустым', 'error');
+                return;
+            }
+            
+            // Обновляем текст сообщения
+            const oldMessage = originalMessageContent;
+            editingContentDiv.innerHTML = newMessage;
+            
+            // Убираем подсветку
+            if (editingMessageDiv) {
+                editingMessageDiv.classList.remove('message-edit-mode');
+            }
+            
+            // Отправляем уведомление через WebSocket о редактировании
+            if (adminWebSocket && adminWebSocket.readyState === WebSocket.OPEN) {
+                const editData = {
+                    type: 'edit_message',
+                    user_id: activeChatUser.id,
+                    old_content: oldMessage,
+                    new_content: newMessage,
+                    timestamp: new Date().toISOString()
+                };
+                adminWebSocket.send(JSON.stringify(editData));
+            }
+            
+            // Выходим из режима редактирования
+            exitEditMode();
+            
+            showNotification('Сообщение исправлено', 'success');
+            logToConsole('✅ Сообщение исправлено: "' + oldMessage + '" -> "' + newMessage + '"');
+        }
+
+        function cancelEdit() {
+            if (!editingContentDiv || !editingMessageDiv) return;
+            
+            // Восстанавливаем оригинальное сообщение
+            editingContentDiv.innerHTML = originalMessageContent;
+            
+            // Убираем подсветку
+            editingMessageDiv.classList.remove('message-edit-mode');
+            
+            // Выходим из режима редактирования
+            exitEditMode();
+            
+            showNotification('Редактирование отменено', 'info');
+            logToConsole('✏️ Редактирование отменено');
+        }
+
+        function exitEditMode() {
+            editMode = false;
+            editingMessageDiv = null;
+            editingContentDiv = null;
+            originalMessageContent = '';
+            
+            // Восстанавливаем текст кнопки
+            const editButton = document.querySelector('button[onclick="editLastMessage()"]');
+            editButton.innerHTML = '✏️ Редактировать сообщение';
+        }
+
+        // ========== ФУНКЦИИ ДЛЯ ПАНЕЛИ РАЗРАБОТЧИКА ==========
+        function logToConsole(message) {
+            const consoleEl = document.getElementById('dev-console');
+            if (!consoleEl) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            consoleEl.innerHTML += '<div>> [' + timestamp + '] ' + message + '</div>';
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function testWebSocket() {
+            if (adminWebSocket && adminWebSocket.readyState === WebSocket.OPEN) {
+                const testMessage = {
+                    type: 'admin_message',
+                    user_id: activeChatUser ? activeChatUser.id : 2,
+                    content: '🧪 Тестовое сообщение от администратора',
+                    timestamp: new Date().toISOString()
+                };
+                adminWebSocket.send(JSON.stringify(testMessage));
+                logToConsole('🧪 Тестовое сообщение отправлено');
+                showNotification('Тест WebSocket выполнен', 'success');
+                
+                // Обновляем статистику после тестового сообщения
+                updateMessageStats();
+            } else {
+                logToConsole('⚠️ WebSocket не подключен');
+                showNotification('WebSocket не подключен', 'error');
+                connectAdminWebSocket();
+            }
+        }
+
+        function clearCache() {
+            const token = localStorage.getItem('access_token');
+            const userId = localStorage.getItem('user_id');
+            const userEmail = localStorage.getItem('user_email');
+            const userName = localStorage.getItem('user_name');
+            
+            sessionStorage.clear();
+            
+            localStorage.setItem('access_token', token);
+            localStorage.setItem('user_id', userId);
+            localStorage.setItem('user_email', userEmail);
+            localStorage.setItem('user_name', userName);
+            
+            logToConsole('🧹 Кэш очищен');
+            showNotification('Кэш очищен', 'success');
+        }
+
+        function reloadData() {
+            loadQuickStats();
+            logToConsole('🔄 Данные обновлены');
+            showNotification('Данные обновлены', 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const colors = {
+                'success': 'bg-green-100 border-green-400 text-green-700',
+                'error': 'bg-red-100 border-red-400 text-red-700',
+                'warning': 'bg-yellow-100 border-yellow-400 text-yellow-700',
+                'info': 'bg-blue-100 border-blue-400 text-blue-700'
+            };
+            
+            notification.className = 'notification fixed top-4 right-4 p-4 rounded-lg border-l-4 ' + colors[type] + ' shadow-lg z-50 max-w-sm';
+            notification.innerHTML = `
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        ${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium">${message}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-auto pl-3">×</button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // ========== ЗАГЛУШКИ ==========
+        async function loadUsersTab(token) {
+            const response = await fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            document.getElementById('content-area').innerHTML = '<div class="p-4">Раздел пользователей (в разработке)</div>';
+        }
+        
+        async function loadProjectsTab(token) {
+            document.getElementById('content-area').innerHTML = '<div class="p-4">Раздел проектов (в разработке)</div>';
+        }
+        
+        async function loadServicesTab(token) {
+            document.getElementById('content-area').innerHTML = '<div class="p-4">Раздел услуг (в разработке)</div>';
+        }
+        
+        async function loadTransactionsTab(token) {
+            document.getElementById('content-area').innerHTML = '<div class="p-4">Раздел платежей (в разработке)</div>';
+        }
+        
+        async function loadStatisticsTab(token) {
+            document.getElementById('content-area').innerHTML = '<div class="p-4">Раздел статистики (в разработке)</div>';
+        }
+        
+        async function loadSettingsTab(token) {
+            document.getElementById('content-area').innerHTML = '<div class="p-4">Раздел настроек (в разработке)</div>';
+        }
+        
+        function showAddUserForm() { showNotification('Функция в разработке', 'warning'); }
+        function editUser(id) { showNotification('Функция в разработке', 'warning'); }
+        function deleteUser(id) { showNotification('Функция в разработке', 'warning'); }
+        function showAddProjectForm() { showNotification('Функция в разработке', 'warning'); }
+        function editProject(id) { showNotification('Функция в разработке', 'warning'); }
+        function deleteProject(id) { showNotification('Функция в разработке', 'warning'); }
+        function showAddServiceForm() { showNotification('Функция в разработке', 'warning'); }
+        function editService(id) { showNotification('Функция в разработке', 'warning'); }
+        function deleteService(id) { showNotification('Функция в разработке', 'warning'); }
+        function loadTransactionsStats() { showNotification('Функция в разработке', 'warning'); }
+        function exportTransactions() { showNotification('Функция в разработке', 'warning'); }
+        function viewTransaction(id) { showNotification('Функция в разработке', 'warning'); }
+        function saveSettings() { showNotification('Функция в разработке', 'warning'); }
+    </script>
+</body>
+</html>

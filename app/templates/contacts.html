@@ -1,79 +1,402 @@
-﻿<!DOCTYPE html>
-<html lang="ru">
-{% extends "layout.html" %}
+﻿{% extends "layout.html" %}
+{% block title %}Контакты - AI Developer Portal{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-white mb-4">Контакты</h2>
-        <p class="text-gray-400 text-xl">Свяжитесь с нами</p>
-    </div>
-    <div class="grid md:grid-cols-2 gap-8">
-        <!-- Контактная информация -->
-        <div class="bg-gray-800 rounded-2xl p-8">
-            <h3 class="text-2xl font-bold text-white mb-6">Наши контакты</h3>
-            <div class="space-y-6">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-blue-900 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">📧</span>
+<style>
+    .contact-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+    .contact-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 30px 20px;
+    }
+    .contact-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .contact-title {
+        font-size: 42px;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 15px;
+    }
+    .contact-subtitle {
+        font-size: 20px;
+        color: #4b5563;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .contact-main {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+    }
+    .contact-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    .contact-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
+    }
+    .card-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #3b82f6;
+    }
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 15px;
+        border-left: 4px solid #3b82f6;
+    }
+    .contact-icon {
+        font-size: 24px;
+        margin-right: 15px;
+        margin-top: 5px;
+    }
+    .contact-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+    .contact-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2563eb;
+        margin-bottom: 5px;
+    }
+    .contact-desc {
+        font-size: 14px;
+        color: #6b7280;
+    }
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    .chat-container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+    }
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f9fafb;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
+    .chat-input-area {
+        border-top: 2px solid #e5e7eb;
+        padding-top: 20px;
+    }
+    .form-group {
+        margin-bottom: 25px;
+    }
+    .form-label {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 10px;
+    }
+    .form-input {
+        width: 100%;
+        padding: 15px 20px;
+        font-size: 16px;
+        border: 2px solid #d1d5db;
+        border-radius: 12px;
+        background: white;
+        color: #111827;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    .submit-btn {
+        width: 100%;
+        padding: 18px;
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .submit-btn:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+    .project-form-container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 1px solid #e5e7eb;
+    }
+    .footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 2px solid #e5e7eb;
+        color: #6b7280;
+        font-size: 16px;
+    }
+    .brand {
+        font-size: 28px;
+        font-weight: 800;
+        color: #111827;
+        margin-top: 10px;
+    }
+    @media (max-width: 1024px) {
+        .contact-main {
+            grid-template-columns: 1fr;
+        }
+        .contact-sidebar {
+            order: 2;
+        }
+        .main-content {
+            order: 1;
+        }
+    }
+</style>
+<div class="contact-page">
+    <div class="contact-container">
+        <!-- Заголовок -->
+        <div class="contact-header">
+            <h1 class="contact-title">📞 Контакты</h1>
+            <p class="contact-subtitle">Свяжитесь с нами для обсуждения вашего проекта или получения консультации</p>
+        </div>
+        <div class="contact-main">
+            <!-- Боковая панель с контактами -->
+            <div class="contact-sidebar">
+                <div class="contact-card">
+                    <h2 class="card-title">Контакты</h2>
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-info">
+                            <h3>Email для проектов</h3>
+                            <a href="mailto:t72trak@gmail.com" class="contact-value">t72trak@gmail.com</a>
+                            <p class="contact-desc">Ответ в течение 24 часов</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-gray-400">Email</p>
-                        <p class="text-white text-lg">contact@example.com</p>
+                    <div class="contact-item">
+                        <div class="contact-icon">🕐</div>
+                        <div class="contact-info">
+                            <h3>Часы работы</h3>
+                            <p class="contact-value">Пн-Пт: 9:00-18:00</p>
+                            <p class="contact-value">Сб-Вс: по договоренности</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">💬</div>
+                        <div class="contact-info">
+                            <h3>Техническая поддержка</h3>
+                            <a href="mailto:t72trak@gmail.com" class="contact-value">t72trak@gmail.com</a>
+                            <p class="contact-desc">Для существующих клиентов</p>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-purple-900 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">📱</span>
-                    </div>
-                    <div>
-                        <p class="text-gray-400">Телефон</p>
-                        <p class="text-white text-lg">+7 (XXX) XXX-XX-XX</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-green-900 rounded-full flex items-center justify-center">
-                        <span class="text-2xl">🕐</span>
-                    </div>
-                    <div>
-                        <p class="text-gray-400">Время работы</p>
-                        <p class="text-white text-lg">Пн-Пт: 9:00-18:00</p>
+                <div class="contact-card">
+                    <h2 class="card-title">Свяжитесь с нами</h2>
+                    <p style="color: #4b5563; margin-bottom: 20px;">
+                        Мы готовы помочь с вашим проектом. Используйте чат для быстрых вопросов или форму для детальных обсуждений.
+                    </p>
+                    <div style="text-align: center;">
+                        <a href="/dashboard" 
+                           style="display: inline-block; padding: 12px 30px; background: #10b981; color: white; text-decoration: none; border-radius: 10px; font-weight: 600;">
+                            Перейти в личный кабинет
+                        </a>
                     </div>
                 </div>
             </div>
+            <!-- Основное содержимое -->
+            <div class="main-content">
+                <!-- Чат -->
+                <div class="chat-container">
+                    <h2 class="card-title">💬 Чат с поддержкой</h2>
+                    <p style="color: #6b7280; margin-bottom: 20px;">Обсудите ваш проект в реальном времени</p>
+                    <div class="chat-messages" id="chatMessages">
+                        <div style="text-align: center; color: #9ca3af; padding: 40px 20px;">
+                            <p>Начните диалог, отправив сообщение</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <form id="chatForm">
+                            <div class="form-group">
+                                <label class="form-label">Ваше сообщение</label>
+                                <textarea id="chatMessage" class="form-input form-textarea" 
+                                          placeholder="Опишите ваш вопрос или проект..."></textarea>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label class="form-label">Ваше имя</label>
+                                    <input type="text" id="chatName" class="form-input" placeholder="Иван Иванов">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email для ответа</label>
+                                    <input type="email" id="chatEmail" class="form-input" placeholder="example@email.com">
+                                </div>
+                            </div>
+                            <button type="submit" class="submit-btn">
+                                Отправить сообщение
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Форма заявки -->
+                <div class="project-form-container">
+                    <h2 class="card-title">📋 Форма заявки на проект</h2>
+                    <p style="color: #6b7280; margin-bottom: 25px;">Заполните форму для получения детального предложения</p>
+                    <form id="projectForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">Имя *</label>
+                                <input type="text" required class="form-input" placeholder="Иван Иванов">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" required class="form-input" placeholder="example@email.com">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Тип проекта *</label>
+                            <select required class="form-input">
+                                <option value="">Выберите тип проекта</option>
+                                <option value="prompt">Промпт-инжиниринг</option>
+                                <option value="ai-dev">Разработка ИИ-решений</option>
+                                <option value="integration">Интеграция ИИ в бизнес</option>
+                                <option value="automation">Автоматизация процессов</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Опишите ваш проект *</label>
+                            <textarea required class="form-input form-textarea" 
+                                      placeholder="Опишите цели, задачи и требования к проекту..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Бюджет (ориентировочно)</label>
+                            <select class="form-input">
+                                <option value="">Не определён</option>
+                                <option value="10-50">10,000 - 50,000 ₽</option>
+                                <option value="50-100">50,000 - 100,000 ₽</option>
+                                <option value="100-500">100,000 - 500,000 ₽</option>
+                                <option value="500+">500,000 ₽ и более</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="submit-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                            📨 Отправить заявку на проект
+                        </button>
+                        <p style="text-align: center; color: #6b7280; margin-top: 20px; font-size: 14px;">
+                            Мы свяжемся с вами в течение 24 часов для уточнения деталей
+                        </p>
+                    </form>
+                </div>
+            </div>
         </div>
-        <!-- Форма обратной связи -->
-        <div class="bg-gray-800 rounded-2xl p-8">
-            <h3 class="text-2xl font-bold text-white mb-6">Написать нам</h3>
-            <form class="space-y-4">
-                <div>
-                    <input 
-                        type="text" 
-                        placeholder="Ваше имя"
-                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    >
-                </div>
-                <div>
-                    <input 
-                        type="email" 
-                        placeholder="Ваш email"
-                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    >
-                </div>
-                <div>
-                    <textarea 
-                        placeholder="Сообщение"
-                        rows="4"
-                        class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                    ></textarea>
-                </div>
-                <button 
-                    type="submit"
-                    class="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg hover:opacity-90"
-                >
-                    Отправить
-                </button>
-            </form>
+        <!-- Футер -->
+        <div class="footer">
+            <p>© 2024 Front end & Back end. Все права защищены.</p>
+            <div class="brand">AI Developer Portal</div>
         </div>
     </div>
 </div>
+<script>
+// Обработка формы чата
+document.getElementById('chatForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const message = document.getElementById('chatMessage').value;
+    const name = document.getElementById('chatName').value || 'Аноним';
+    const email = document.getElementById('chatEmail').value;
+    if (message.trim()) {
+        const chatMessages = document.getElementById('chatMessages');
+        // Очищаем начальное сообщение
+        if (chatMessages.children.length === 1 && chatMessages.children[0].style.textAlign === 'center') {
+            chatMessages.innerHTML = '';
+        }
+        // Добавляем сообщение пользователя
+        const userMessage = document.createElement('div');
+        userMessage.style.cssText = `
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 15px;
+            max-width: 70%;
+            margin-left: auto;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        `;
+        userMessage.innerHTML = `
+            <div style="font-weight: 700; margin-bottom: 5px;">Вы (${name})</div>
+            <div>${message}</div>
+            <div style="font-size: 12px; opacity: 0.9; text-align: right; margin-top: 8px;">Только что</div>
+        `;
+        chatMessages.appendChild(userMessage);
+        // Очищаем поле
+        document.getElementById('chatMessage').value = '';
+        // Автопрокрутка
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Имитация ответа через 2 секунды
+        setTimeout(() => {
+            const botMessage = document.createElement('div');
+            botMessage.style.cssText = `
+                background: #f3f4f6;
+                color: #111827;
+                padding: 15px 20px;
+                border-radius: 15px 15px 15px 0;
+                max-width: 70%;
+                margin-right: auto;
+                margin-bottom: 15px;
+                word-wrap: break-word;
+            `;
+            botMessage.innerHTML = `
+                <div style="font-weight: 700; margin-bottom: 5px;">Поддержка AI Developer Portal</div>
+                <div>Спасибо за ваше сообщение! ${email ? 'Мы ответим на ' + email : 'Мы ответим вам'} в течение 24 часов.</div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 8px;">Только что</div>
+            `;
+            chatMessages.appendChild(botMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 2000);
+    }
+});
+// Обработка формы проекта
+document.getElementById('projectForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Здесь будет отправка на сервер
+    alert('✅ Заявка отправлена успешно! Мы свяжемся с вами в течение 24 часов.');
+    this.reset();
+});
+</script>
 {% endblock %}

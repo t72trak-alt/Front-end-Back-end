@@ -1,0 +1,157 @@
+﻿{% extends "layout.html" %}
+{% block title %}Услуги - AI Developer Portal{% endblock %}
+{% block content %}
+<style>
+    .services-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 20px;
+    }
+    .services-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .services-header {
+        text-align: center;
+        margin-bottom: 60px;
+        color: white;
+    }
+    .services-title {
+        font-size: 48px;
+        font-weight: 800;
+        margin-bottom: 20px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    .services-subtitle {
+        font-size: 22px;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+        margin-bottom: 60px;
+    }
+    .service-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease;
+        border: 2px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        height: 100%;
+    }
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    }
+    .service-icon {
+        font-size: 64px;
+        margin-bottom: 25px;
+    }
+    .service-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+    .service-description {
+        font-size: 18px;
+        color: #4a5568;
+        margin-bottom: 30px;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+    .service-button {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .service-button:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+    .services-footer {
+        text-align: center;
+        color: white;
+        padding-top: 40px;
+        border-top: 2px solid rgba(255,255,255,0.1);
+    }
+    .brand {
+        font-size: 32px;
+        font-weight: 800;
+        margin-top: 15px;
+    }
+    @media (max-width: 1200px) {
+        .services-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @media (max-width: 768px) {
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+        .service-card {
+            padding: 30px 20px;
+        }
+    }
+</style>
+<div class="services-page">
+    <div class="services-container">
+        <div class="services-header">
+            <h1 class="services-title">Наши услуги</h1>
+            <p class="services-subtitle">Профессиональные решения в области искусственного интеллекта</p>
+        </div>
+        <div class="services-grid">
+            <!-- Промпт-инжиниринг -->
+            <div class="service-card">
+                <div class="service-icon">🎯</div>
+                <h3 class="service-title">Промпт-инжиниринг</h3>
+                <p class="service-description">Создание и оптимизация промптов для AI-моделей. Повышение эффективности взаимодействия с нейросетями через правильно составленные запросы.</p>
+                <a href="/pricing#prompt" class="service-button">Подробнее</a>
+            </div>
+            <!-- Разработка ИИ-ассистентов -->
+            <div class="service-card">
+                <div class="service-icon">🤖</div>
+                <h3 class="service-title">Разработка ИИ-ассистентов</h3>
+                <p class="service-description">Разработка интеллектуальных ассистентов для бизнеса. Автоматизация коммуникации, анализ данных и поддержка принятия решений.</p>
+                <a href="/pricing#ai-assistant" class="service-button">Подробнее</a>
+            </div>
+            <!-- Интеграция ИИ в бизнес -->
+            <div class="service-card">
+                <div class="service-icon">🔧</div>
+                <h3 class="service-title">Интеграция ИИ в бизнес</h3>
+                <p class="service-description">Внедрение AI-решений в бизнес-процессы. Анализ, проектирование и реализация интеграции искусственного интеллекта в вашу компанию.</p>
+                <a href="/pricing#integration" class="service-button">Подробнее</a>
+            </div>
+            <!-- Автоматизация бизнес-процессов -->
+            <div class="service-card">
+                <div class="service-icon">⚙️</div>
+                <h3 class="service-title">Автоматизация бизнес-процессов</h3>
+                <p class="service-description">Анализ и автоматизация рутинных процессов. Создание систем для оптимизации рабочих потоков и снижения операционных затрат.</p>
+                <a href="/pricing#automation" class="service-button">Подробнее</a>
+            </div>
+        </div>
+        <div class="services-footer">
+            <p>© 2024 Front end & Back end. Все права защищены.</p>
+            <div class="brand">AI Developer Portal</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

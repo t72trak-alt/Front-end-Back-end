@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Тест</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button.disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #messages {
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .message.incoming {
+            background-color: #e6f7ff;
+            text-align: right;
+        }
+        .message.outgoing {
+            background-color: #f0f0f0;
+        }
+        .message.system {
+            background-color: #fff8e1;
+            font-style: italic;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>?? WebSocket Тестирование</h1>
+    <div class="status" id="status">Статус: Не подключено</div>
+    <button class="button" onclick="connectWebSocket()" id="connectBtn">Подключиться</button>
+    <button class="button disabled" onclick="disconnectWebSocket()" id="disconnectBtn" disabled>Отключиться</button>
+    <button class="button disabled" onclick="sendTestMessage()" id="sendBtn" disabled>Отправить тестовое сообщение</button>
+    <div>
+        <input type="text" id="messageInput" placeholder="Введите сообщение..." disabled style="width: 300px; padding: 10px;">
+        <button class="button disabled" onclick="sendCustomMessage()" id="customSendBtn" disabled>Отправить</button>
+    </div>
+    <h3>Лог сообщений:</h3>
+    <div id="messages"></div>
+    <script>
+        let socket = null;
+        const messagesDiv = document.getElementById('messages');
+        const statusDiv = document.getElementById('status');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const customSendBtn = document.getElementById('customSendBtn');
+        const messageInput = document.getElementById('messageInput');
+        function addMessage(text, type = 'system') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${text}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        function updateStatus(connected) {
+            if (connected) {
+                statusDiv.textContent = 'Статус: Подключено ?';
+                statusDiv.className = 'status connected';
+                connectBtn.disabled = true;
+                connectBtn.classList.add('disabled');
+                disconnectBtn.disabled = false;
+                disconnectBtn.classList.remove('disabled');
+                sendBtn.disabled = false;
+                sendBtn.classList.remove('disabled');
+                customSendBtn.disabled = false;
+                customSendBtn.classList.remove('disabled');
+                messageInput.disabled = false;
+            } else {
+                statusDiv.textContent = 'Статус: Отключено ?';
+                statusDiv.className = 'status disconnected';
+                connectBtn.disabled = false;
+                connectBtn.classList.remove('disabled');
+                disconnectBtn.disabled = true;
+                disconnectBtn.classList.add('disabled');
+                sendBtn.disabled = true;
+                sendBtn.classList.add('disabled');
+                customSendBtn.disabled = true;
+                customSendBtn.classList.add('disabled');
+                messageInput.disabled = true;
+            }
+        }
+        function connectWebSocket() {
+            socket = new WebSocket('ws://localhost:8080/test-ws');
+            socket.onopen = function(event) {
+                addMessage('WebSocket подключен успешно!', 'system');
+                updateStatus(true);
+            };
+            socket.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    addMessage(`Сервер: ${JSON.stringify(data)}`, 'incoming');
+                } catch (e) {
+                    addMessage(`Сервер: ${event.data}`, 'incoming');
+                }
+            };
+            socket.onerror = function(error) {
+                addMessage(`Ошибка: ${error.message || 'Неизвестная ошибка'}`, 'system');
+                updateStatus(false);
+            };
+            socket.onclose = function(event) {
+                addMessage(`Соединение закрыто. Код: ${event.code}, причина: ${event.reason || 'нет'}`, 'system');
+                updateStatus(false);
+                socket = null;
+            };
+        }
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.close();
+                addMessage('Закрываю соединение...', 'system');
+            }
+        }
+        function sendTestMessage() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const testMessage = `Тестовое сообщение ${new Date().toLocaleTimeString()}`;
+                socket.send(testMessage);
+                addMessage(`Отправлено: ${testMessage}`, 'outgoing');
+            }
+        }
+        function sendCustomMessage() {
+            const message = messageInput.value.trim();
+            if (message && socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+                addMessage(`Отправлено: ${message}`, 'outgoing');
+                messageInput.value = '';
+            }
+        }
+        // Разрешаем отправку по Enter
+        messageInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendCustomMessage();
+            }
+        });
+        // Автоматически подключаемся при загрузке страницы
+        window.onload = function() {
+            addMessage('Страница загружена. Нажмите "Подключиться" для теста WebSocket.', 'system');
+        };
+    </script>
+</body>
+</html>

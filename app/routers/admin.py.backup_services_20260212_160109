@@ -54,7 +54,7 @@ async def get_all_projects(
         "projects": projects
     }
 
-# ================ УСЛУГИ (SERVICES) - ИСПРАВЛЕНО ПОД РЕАЛЬНУЮ БД ================
+# ================ УСЛУГИ (SERVICES) ================
 @router.get("/services")
 async def get_all_services(
     current_user: models.User = Depends(get_current_user),
@@ -62,48 +62,11 @@ async def get_all_services(
 ):
     """Получить все услуги"""
     check_admin(current_user)
-    
-    # Проверяем существование таблицы
-    from sqlalchemy import inspect
-    inspector = inspect(db.bind)
-    if 'services' not in inspector.get_table_names():
-        return {
-            "status": "success",
-            "count": 0,
-            "services": [],
-            "message": "Таблица услуг не создана"
-        }
-    
     services = db.query(models.Service).all()
-    
-    # Преобразуем поля для совместимости с фронтендом
-    services_list = []
-    for service in services:
-        service_dict = {
-            "id": service.id,
-            "name": service.title,  # title → name для совместимости
-            "title": service.title,
-            "description": service.short_description or service.full_description,  # для совместимости
-            "short_description": service.short_description,
-            "full_description": service.full_description,
-            "price": service.price_range,  # price_range → price для совместимости
-            "price_range": service.price_range,
-            "category": "development",  # значение по умолчанию
-            "icon": service.icon,
-            "features": service.features,
-            "technologies": service.technologies,
-            "duration": service.duration,
-            "order_index": service.order_index,
-            "is_active": service.is_active,
-            "created_at": service.created_at,
-            "updated_at": service.updated_at
-        }
-        services_list.append(service_dict)
-    
     return {
         "status": "success",
-        "count": len(services_list),
-        "services": services_list
+        "count": len(services),
+        "services": services
     }
 
 @router.post("/services")
@@ -115,46 +78,23 @@ async def create_service(
     """Создать новую услугу"""
     check_admin(current_user)
     
-    # Проверяем существование таблицы
-    from sqlalchemy import inspect
-    inspector = inspect(db.bind)
-    if 'services' not in inspector.get_table_names():
-        from app.database import Base
-        Base.metadata.create_all(bind=db.bind, tables=[models.Service.__table__])
-    
-    # Маппинг полей из запроса в модель БД
     new_service = models.Service(
-        title=service_data.get("name") or service_data.get("title", "Новая услуга"),
-        icon=service_data.get("icon", "🔧"),
-        short_description=service_data.get("description") or service_data.get("short_description", ""),
-        full_description=service_data.get("full_description", ""),
-        features=service_data.get("features", []),
-        technologies=service_data.get("technologies", []),
-        price_range=service_data.get("price") or service_data.get("price_range", "0"),
-        duration=service_data.get("duration", "1 час"),
-        order_index=service_data.get("order_index", 0),
+        name=service_data.get("name"),
+        description=service_data.get("description", ""),
+        price=service_data.get("price", 0),
+        category=service_data.get("category", "general"),
         is_active=service_data.get("is_active", True),
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        created_at=datetime.utcnow()
     )
     
     db.add(new_service)
     db.commit()
     db.refresh(new_service)
     
-    # Возвращаем в формате, понятном фронтенду
     return {
         "status": "success",
         "message": "Услуга создана",
-        "service": {
-            "id": new_service.id,
-            "name": new_service.title,
-            "title": new_service.title,
-            "description": new_service.short_description,
-            "price": new_service.price_range,
-            "icon": new_service.icon,
-            "is_active": new_service.is_active
-        }
+        "service": new_service
     }
 
 @router.put("/services/{service_id}")
@@ -171,44 +111,25 @@ async def update_service(
     if not service:
         raise HTTPException(status_code=404, detail="Услуга не найдена")
     
-    # Обновляем поля с маппингом из запроса в модель БД
-    if "name" in service_data or "title" in service_data:
-        service.title = service_data.get("name") or service_data.get("title", service.title)
-    if "description" in service_data or "short_description" in service_data:
-        service.short_description = service_data.get("description") or service_data.get("short_description", service.short_description)
-    if "full_description" in service_data:
-        service.full_description = service_data["full_description"]
-    if "price" in service_data or "price_range" in service_data:
-        service.price_range = service_data.get("price") or service_data.get("price_range", service.price_range)
-    if "icon" in service_data:
-        service.icon = service_data["icon"]
-    if "features" in service_data:
-        service.features = service_data["features"]
-    if "technologies" in service_data:
-        service.technologies = service_data["technologies"]
-    if "duration" in service_data:
-        service.duration = service_data["duration"]
-    if "order_index" in service_data:
-        service.order_index = service_data["order_index"]
+    # Обновляем только переданные поля
+    if "name" in service_data:
+        service.name = service_data["name"]
+    if "description" in service_data:
+        service.description = service_data["description"]
+    if "price" in service_data:
+        service.price = service_data["price"]
+    if "category" in service_data:
+        service.category = service_data["category"]
     if "is_active" in service_data:
         service.is_active = service_data["is_active"]
     
-    service.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(service)
     
     return {
         "status": "success",
         "message": "Услуга обновлена",
-        "service": {
-            "id": service.id,
-            "name": service.title,
-            "title": service.title,
-            "description": service.short_description,
-            "price": service.price_range,
-            "icon": service.icon,
-            "is_active": service.is_active
-        }
+        "service": service
     }
 
 @router.delete("/services/{service_id}")

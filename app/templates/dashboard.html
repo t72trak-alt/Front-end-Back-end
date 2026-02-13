@@ -43,6 +43,79 @@
         .btn-admin:hover {
             background: #ff5722;
         }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-indicator.online {
+            background-color: #4CAF50;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+        
+        .status-indicator.offline {
+            background-color: #f44336;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .chat-input-container input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #222;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .chat-input-container input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .send-button {
+            padding: 12px 24px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        
+        .send-button:hover {
+            background: #45a049;
+        }
+        
+        .send-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -75,34 +148,41 @@
         </div>
         
         <div class="chat-container">
-            <h2>💬 Чат с разработчиком <button onclick="toggleDebug()" style="font-size: 12px; padding: 3px 8px;">Отладка</button></h2>
-            <div class="debug-panel" id="debug-panel" style="display: none;">
-                <div id="debug-log"></div>
-            </div>
-            
-            <div class="chat-container">
-                <div class="chat-header">
-                    <div>
-                        <strong>💬 Чат поддержки</strong>
-                        <div class="user-status">
-                            <span id="status-indicator" class="status-indicator"></span>
-                            <small id="status-text">Подключение...</small>
-                        </div>
+            <div class="chat-header">
+                <div>
+                    <strong>💬 Чат поддержки</strong>
+                    <div class="user-status">
+                        <span id="status-indicator" class="status-indicator"></span>
+                        <small id="status-text">Подключение...</small>
                     </div>
                 </div>
-                <div class="chat-messages" id="chat-messages">
-                    <!-- Сообщения будут здесь -->
-                </div>
-                <div class="chat-input-container">
-                    <input type="text" class="chat-input" id="message-input" placeholder="Введите сообщение..." onkeypress="handleKeyPress(event)">
-                    <button class="send-button" onclick="sendMessage()">Отправить</button>
-                </div>
+                <button onclick="toggleDebug()" style="font-size: 12px; padding: 5px 10px; background: #333; color: white; border: none; border-radius: 3px; cursor: pointer;">Отладка</button>
+            </div>
+            
+            <div class="debug-panel" id="debug-panel" style="display: none;">
+                <div id="debug-log" style="color: #0f0;"></div>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <!-- Сообщения будут здесь -->
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" id="message-input" placeholder="Введите сообщение..." onkeypress="handleKeyPress(event)">
+                <button class="send-button" onclick="sendMessage()" id="send-button">Отправить</button>
             </div>
         </div>
         
         <script>
         function logout() {
+            if (ws) {
+                ws.close();
+            }
             document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_email');
+            localStorage.removeItem('user_name');
             window.location.href = "/login";
         }
         
@@ -110,7 +190,8 @@
         let userId = {{ user.id }};
         let userName = "{{ user.name }}";
         let debugEnabled = false;
-        let messageCounter = 0; // Счетчик для уникальных ID сообщений
+        let messageCounter = 0;
+        let messageIds = new Set(); // Множество для хранения ID полученных сообщений
         
         function debugLog(msg) {
             if (!debugEnabled) return;
@@ -131,10 +212,15 @@
             const indicator = document.getElementById('status-indicator');
             const statusText = document.getElementById('status-text');
             indicator.className = 'status-indicator';
+            
             if (status === 'connected') {
                 indicator.classList.add('online');
+                document.getElementById('send-button').disabled = false;
             } else if (status === 'disconnected') {
                 indicator.classList.add('offline');
+                document.getElementById('send-button').disabled = true;
+            } else {
+                document.getElementById('send-button').disabled = true;
             }
             statusText.textContent = text;
         }
@@ -148,13 +234,16 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             connectWebSocket();
-            // Загружаем историю сообщений при загрузке страницы
             loadChatHistory();
         });
         
         function connectWebSocket() {
             updateStatus('connecting', 'Подключение...');
-            ws = new WebSocket(`ws://${window.location.host}/api/chat/ws/chat/${userId}`);
+            
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/api/chat/ws/chat/${userId}`;
+            
+            ws = new WebSocket(wsUrl);
             
             ws.onopen = function() {
                 updateStatus('connected', 'В сети');
@@ -175,39 +264,48 @@
             ws.onmessage = function(event) {
                 try {
                     const data = JSON.parse(event.data);
-                    debugLog('📨 Получено: ' + data.content.substring(0, 50));
                     
                     if (data.type === 'system') {
                         addMessageToChat(data.content, false, 'system');
-                    } else if (data.type === 'message') {
-                        const isOwnMessage = data.sender_id == userId;
-                        // Проверяем, не было ли уже добавлено это сообщение
-                        if (!isMessageAlreadyDisplayed(data)) {
-                            addMessageToChat(data.content, isOwnMessage, 'message', data.timestamp);
+                        debugLog('📨 Системное: ' + data.content);
+                    } 
+                    else if (data.type === 'message' || data.type === 'new_message') {
+                        const messageData = data.message || data;
+                        const messageId = messageData.id || messageData.message_id || Date.now();
+                        
+                        // Проверяем, не было ли уже это сообщение
+                        if (messageIds.has(messageId)) {
+                            debugLog('⚠️ Дубликат сообщения пропущен: ' + messageId);
+                            return;
                         }
+                        
+                        // Добавляем ID в множество
+                        messageIds.add(messageId);
+                        
+                        const isOwnMessage = messageData.sender_id == userId;
+                        addMessageToChat(messageData.content, isOwnMessage, 'message', messageData.timestamp);
+                        debugLog(`📨 ${isOwnMessage ? 'Своё' : 'От админа'}: ${messageData.content.substring(0, 30)}`);
                     }
                 } catch (error) {
-                    debugLog('Ошибка обработки сообщения: ' + error);
+                    debugLog('❌ Ошибка обработки сообщения: ' + error);
                 }
             };
-        }
-        
-        function isMessageAlreadyDisplayed(data) {
-            // Простая проверка по времени и содержанию
-            const messages = document.querySelectorAll('.message-content');
-            for (let msg of messages) {
-                if (msg.textContent === data.content && 
-                    Math.abs(new Date(data.timestamp) - new Date()) < 5000) {
-                    return true;
-                }
-            }
-            return false;
         }
         
         function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
-            if (!message || !ws || ws.readyState !== WebSocket.OPEN) return;
+            
+            if (!message) {
+                debugLog('⚠️ Попытка отправить пустое сообщение');
+                return;
+            }
+            
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                debugLog('❌ WebSocket не подключен');
+                alert('Соединение не установлено. Попробуйте перезагрузить страницу.');
+                return;
+            }
             
             const messageId = 'msg_' + Date.now() + '_' + (messageCounter++);
             const timestamp = new Date().toISOString();
@@ -218,29 +316,35 @@
                 sender_id: userId,
                 sender_name: userName,
                 timestamp: timestamp,
-                message_id: messageId // Добавляем уникальный ID
+                message_id: messageId
             };
             
-            // НЕ добавляем сообщение сразу - ждем ответа от сервера
-            // addMessageToChat(message, true, 'message', timestamp); // УБРАНО!
-            
+            // Отправляем сообщение
             ws.send(JSON.stringify(messageData));
+            debugLog('📤 Отправлено: ' + message.substring(0, 30));
+            
+            // Очищаем поле ввода
             input.value = '';
             input.focus();
-            debugLog('📤 Отправлено сообщение (ID: ' + messageId + ')');
         }
         
         function addMessageToChat(content, isOwn, type = 'message', timestamp = null) {
             const messagesContainer = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
+            
             messageDiv.className = `message ${isOwn ? 'sent' : 'received'}`;
             
             const time = timestamp ? new Date(timestamp) : new Date();
             const timeStr = time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
+            // Добавляем дату, если сообщение не сегодня
+            const today = new Date().toDateString();
+            const msgDate = time.toDateString();
+            const dateStr = msgDate !== today ? time.toLocaleDateString() + ' ' : '';
+            
             messageDiv.innerHTML = `
                 <div class="message-content">${content}</div>
-                <div class="message-time">${timeStr}</div>
+                <div class="message-time">${dateStr}${timeStr}</div>
             `;
             
             messagesContainer.appendChild(messageDiv);
@@ -249,20 +353,34 @@
         
         function loadChatHistory() {
             fetch(`/api/chat/history/${userId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка загрузки истории');
+                    }
+                    return response.json();
+                })
                 .then(messages => {
                     const messagesContainer = document.getElementById('chat-messages');
                     messagesContainer.innerHTML = ''; // Очищаем перед загрузкой
+                    messageIds.clear(); // Очищаем множество ID
                     
                     messages.forEach(msg => {
                         const isOwn = msg.sender_id == userId;
-                        addMessageToChat(msg.content, isOwn, 'message', msg.timestamp);
+                        addMessageToChat(msg.content, isOwn, 'message', msg.created_at || msg.timestamp);
+                        
+                        // Сохраняем ID сообщения для предотвращения дубликатов
+                        if (msg.id) {
+                            messageIds.add(msg.id);
+                        }
                     });
                     
                     debugLog('📜 Загружено ' + messages.length + ' сообщений из истории');
                 })
                 .catch(error => {
                     debugLog('❌ Ошибка загрузки истории: ' + error);
+                    // Показываем сообщение об ошибке в чате
+                    const messagesContainer = document.getElementById('chat-messages');
+                    messagesContainer.innerHTML = '<div class="message received" style="background: #5a2d7a;">❌ Не удалось загрузить историю сообщений</div>';
                 });
         }
         </script>

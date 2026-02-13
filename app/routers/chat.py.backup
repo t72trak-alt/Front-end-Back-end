@@ -1,0 +1,146 @@
+﻿from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from typing import List
+import json
+from datetime import datetime
+from sqlalchemy.orm import Session
+
+from app.database import SessionLocal
+from app.models import Message, User
+
+router = APIRouter(prefix="/api/chat", tags=["chat"])
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+    
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+    
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+    
+    async def send_personal_message(self, message: dict, websocket: WebSocket):
+        await websocket.send_json(message)
+    
+    async def broadcast(self, message: dict):
+        for connection in self.active_connections:
+            await connection.send_json(message)
+
+manager = ConnectionManager()
+
+@router.websocket("/admin")
+async def websocket_admin_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    
+    # Создаем сессию БД для этого подключения
+    db = SessionLocal()
+    
+    try:
+        # Отправляем приветственное сообщение
+        await websocket.send_json({
+            "type": "connection_established",
+            "message": "WebSocket подключен как администратор",
+            "status": "connected",
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        while True:
+            # Получаем сообщения от клиента
+            data = await websocket.receive_text()
+            
+            try:
+                message_data = json.loads(data)
+                message_type = message_data.get("type")
+                
+                # Обрабатываем разные типы сообщений
+                if message_type == "test":
+                    await websocket.send_json({
+                        "type": "test_response",
+                        "message": "Тестовое сообщение получено",
+                        "original": message_data
+                    })
+                
+                elif message_type == "admin_message":
+                    # Сообщение от админа пользователю
+                    user_id = message_data.get("user_id")
+                    content = message_data.get("content")
+                    
+                    if not user_id or not content:
+                        await websocket.send_json({
+                            "type": "error",
+                            "message": "Отсутствует user_id или content"
+                        })
+                        continue
+                    
+                    # Сохраняем сообщение в БД
+                    try:
+                        # Находим администратора (первого админа в системе)
+                        admin_user = db.query(User).filter(User.is_admin == True).first()
+                        
+                        if not admin_user:
+                            # Если нет админа, используем ID=1
+                            admin_user_id = 1
+                        else:
+                            admin_user_id = admin_user.id
+                        
+                        # Создаем запись в БД
+                        db_message = Message(
+                            content=content,
+                            sender_id=admin_user_id,
+                            user_id=user_id,
+                            is_from_admin=True,  # Сообщение от админа
+                            created_at=datetime.now()
+                        )
+                        
+                        db.add(db_message)
+                        db.commit()
+                        
+                        # Получаем сохраненное сообщение с ID
+                        db.refresh(db_message)
+                        
+                        # Отправляем подтверждение клиенту
+                        await websocket.send_json({
+                            "type": "message_delivered",
+                            "message_id": db_message.id,
+                            "content": db_message.content,
+                            "user_id": db_message.user_id,
+                            "sender_id": db_message.sender_id,
+                            "is_from_admin": db_message.is_from_admin,
+                            "created_at": db_message.created_at.isoformat() if db_message.created_at else None,
+                            "timestamp": datetime.now().isoformat()
+                        })
+                        
+                        print(f"✅ Сообщение сохранено в БД: ID={db_message.id}, user_id={user_id}")
+                        
+                    except Exception as db_error:
+                        db.rollback()
+                        await websocket.send_json({
+                            "type": "error",
+                            "message": f"Ошибка сохранения в БД: {str(db_error)}"
+                        })
+                
+                else:
+                    # Эхо для других типов сообщений
+                    await websocket.send_json({
+                        "type": "echo",
+                        "message": "Сообщение получено",
+                        "data": message_data
+                    })
+                    
+            except json.JSONDecodeError:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Неверный формат JSON"
+                })
+                
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast({
+            "type": "admin_disconnected",
+            "message": "Администратор отключился",
+            "timestamp": datetime.now().isoformat()
+        })
+    finally:
+        db.close()
