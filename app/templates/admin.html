@@ -339,6 +339,39 @@
             color: #1f2937;
             font-weight: 500;
         }
+
+        /* Стили для таблицы договоров */
+        .contracts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .contracts-table th {
+            background-color: #f3f4f6;
+            padding: 10px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .contracts-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 13px;
+        }
+        .contracts-table tr:hover {
+            background-color: #f9fafb;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .status-draft { background-color: #e5e7eb; color: #4b5563; }
+        .status-sent { background-color: #bfdbfe; color: #1e40af; }
+        .status-signed { background-color: #bbf7d0; color: #166534; }
+        .status-completed { background-color: #c7d2fe; color: #3730a3; }
+        .status-cancelled { background-color: #fecaca; color: #991b1b; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -366,6 +399,12 @@
                 <button onclick="loadTab('users')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-users">
                     <span class="mr-2 text-gray-700">👤</span> <span class="text-gray-800">Пользователи</span>
                 </button>
+                
+                <!-- НОВАЯ КНОПКА ДОГОВОРА -->
+                <button onclick="openUserSelectModal()" class="tab-btn w-full text-left p-3 rounded hover:bg-amber-50 transition flex items-center text-gray-800 font-medium" id="tab-contracts">
+                    <span class="mr-2 text-amber-600">📄</span> <span class="text-gray-800">Договора</span>
+                </button>
+                
                 <button onclick="loadTab('payments')" class="tab-btn w-full text-left p-3 rounded hover:bg-blue-50 transition flex items-center text-gray-800 font-medium" id="tab-payments">
                     <span class="mr-2 text-gray-700">💰</span> <span class="text-gray-800">Платежи</span>
                 </button>
@@ -685,6 +724,115 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ДОГОВОРОВ -->
+    <div id="contracts-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">📄 Договоры клиента</h3>
+                <button onclick="closeContractsModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            
+            <div class="mb-4 flex justify-between items-center">
+                <div>
+                    <span id="contracts-client-name" class="font-medium text-lg"></span>
+                </div>
+                <button onclick="createNewContract()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    <span class="mr-2">➕</span> Новый договор
+                </button>
+            </div>
+            
+            <!-- Таблица договоров -->
+            <div class="overflow-x-auto">
+                <table class="contracts-table">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3">№ договора</th>
+                            <th class="px-4 py-3">Дата</th>
+                            <th class="px-4 py-3">Тип</th>
+                            <th class="px-4 py-3">Сумма</th>
+                            <th class="px-4 py-3">Статус</th>
+                            <th class="px-4 py-3">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contracts-table-body">
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                Загрузка договоров...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ДОГОВОРА -->
+    <div id="contract-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">📄 Редактирование договора</h3>
+                <button onclick="closeContractEditModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            
+            <form id="contract-form" onsubmit="saveContract(event)">
+                <input type="hidden" id="contract-id">
+                <input type="hidden" id="contract-user-id">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="contract-number">Номер договора</label>
+                        <input type="text" id="contract-number" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contract-date">Дата договора</label>
+                        <input type="date" id="contract-date" class="w-full p-2 border rounded" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contract-type">Тип договора</label>
+                        <select id="contract-type" class="w-full p-2 border rounded">
+                            <option value="service">На оказание услуг</option>
+                            <option value="development">Разработка ПО</option>
+                            <option value="nda">NDA (Соглашение о конфиденциальности)</option>
+                            <option value="maintenance">Абонентское обслуживание</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contract-amount">Сумма</label>
+                        <input type="number" id="contract-amount" class="w-full p-2 border rounded">
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label for="contract-description">Описание/Предмет договора</label>
+                        <textarea id="contract-description" rows="3" class="w-full p-2 border rounded"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="contract-status">Статус</label>
+                        <select id="contract-status" class="w-full p-2 border rounded">
+                            <option value="draft">Черновик</option>
+                            <option value="sent">Отправлен</option>
+                            <option value="signed">Подписан</option>
+                            <option value="completed">Завершён</option>
+                            <option value="cancelled">Расторгнут</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contract-expiry">Срок действия</label>
+                        <input type="date" id="contract-expiry" class="w-full p-2 border rounded">
+                    </div>
+                    <div class="form-group col-span-2">
+                        <label for="contract-file">Файл договора</label>
+                        <input type="file" id="contract-file" class="w-full p-2 border rounded" accept=".pdf,.doc,.docx">
+                        <p class="text-xs text-gray-500 mt-1">Загрузите скан или электронную версию</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-2 mt-6">
+                    <button type="button" onclick="closeContractEditModal()" class="btn btn-secondary">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer class="bg-gray-800 text-white p-4 mt-4">
         <div class="container mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-center">
@@ -711,6 +859,8 @@
         const MAX_RECONNECT_ATTEMPTS = 10;
         let currentUsers = [];
         let userToDelete = null;
+        let currentContractsUserId = null;
+        let currentContractsUserName = '';
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         document.addEventListener('DOMContentLoaded', function() {
@@ -1421,7 +1571,13 @@
                 input.value = '';
                 logToConsole('📤 Отправлено сообщение пользователю ' + activeChatUser.name);
                 
+                // Обновляем статистику в реальном времени
                 updateMessageStats();
+                
+                // Обновляем карточку клиента если она открыта
+                if (!document.getElementById('client-card-modal').classList.contains('hidden') && activeChatUser) {
+                    loadClientCardData(activeChatUser.id, activeChatUser.name, activeChatUser.email);
+                }
             } else {
                 alert('WebSocket не подключен. Перезагрузите страницу.');
                 logToConsole('❌ WebSocket не подключен');
@@ -1519,6 +1675,11 @@
                                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
                                 logToConsole('📩 Новое сообщение от ' + activeChatUser.name);
                                 showNotification(`Новое сообщение от ${activeChatUser.name}`, 'info');
+                                
+                                // Обновляем карточку клиента если она открыта
+                                if (!document.getElementById('client-card-modal').classList.contains('hidden')) {
+                                    loadClientCardData(activeChatUser.id, activeChatUser.name, activeChatUser.email);
+                                }
                             }
                             
                             updateMessageStats();
@@ -1862,6 +2023,7 @@
                     });
                     if (statsResponse.ok) {
                         statistics = await statsResponse.json();
+                        console.log('📊 Статистика загружена:', statistics);
                     }
                 } catch (e) {
                     console.log('Статистика не загружена');
@@ -1875,6 +2037,12 @@
                     });
                     if (messagesResponse.ok) {
                         messages = await messagesResponse.json();
+                        console.log('💬 Сообщений загружено:', messages.length);
+                        
+                        // Обновляем статистику если расходится
+                        if (statistics.total_messages !== messages.length) {
+                            statistics.total_messages = messages.length;
+                        }
                     }
                 } catch (e) {
                     console.log('Сообщения не загружены');
@@ -1996,7 +2164,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Кнопки вертикально: Реквизиты, Редактировать, Написать -->
+                            <!-- Кнопки вертикально: Реквизиты, Редактировать, Написать, Договора -->
                             <div class="flex flex-col space-y-2">
                                 <button onclick="openClientDetailsModal(${userId})" 
                                         class="w-full bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg text-sm flex items-center justify-center">
@@ -2009,6 +2177,10 @@
                                 <button onclick="openChatWithUser(${userId}, '${userName.replace(/'/g, "\\'")}')" 
                                         class="w-full bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm flex items-center justify-center">
                                     <span class="mr-2">💬</span> Написать
+                                </button>
+                                <button onclick="openContractsModal(${userId}, '${userName.replace(/'/g, "\\'")}')" 
+                                        class="w-full bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-sm flex items-center justify-center">
+                                    <span class="mr-2">📄</span> Договора
                                 </button>
                             </div>
                         </div>
@@ -2086,6 +2258,151 @@
         function switchToChat(userName) {
             closeClientCardModal();
             showNotification(`Чат с пользователем ${userName}`, 'info');
+        }
+
+        // ========== ФУНКЦИИ ДЛЯ ДОГОВОРОВ ==========
+        
+        function openContractsModal(userId, userName) {
+            currentContractsUserId = userId;
+            currentContractsUserName = userName;
+            
+            const modal = document.getElementById('contracts-modal');
+            const clientNameSpan = document.getElementById('contracts-client-name');
+            
+            if (modal) {
+                clientNameSpan.textContent = `Клиент: ${userName}`;
+                modal.classList.remove('hidden');
+                loadContracts(userId);
+            }
+        }
+
+        function closeContractsModal() {
+            const modal = document.getElementById('contracts-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        async function loadContracts(userId) {
+            const tableBody = document.getElementById('contracts-table-body');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Загрузка договоров...</td></tr>';
+            
+            try {
+                const token = localStorage.getItem('access_token');
+                // Здесь будет запрос к API для получения договоров
+                // Пока заглушка
+                setTimeout(() => {
+                    const mockContracts = [
+                        {
+                            id: 1,
+                            number: 'ДОГ-2025-001',
+                            date: '2025-01-15',
+                            type: 'service',
+                            typeName: 'На оказание услуг',
+                            amount: 150000,
+                            status: 'signed',
+                            statusName: 'Подписан'
+                        },
+                        {
+                            id: 2,
+                            number: 'ДОГ-2025-042',
+                            date: '2025-02-10',
+                            type: 'development',
+                            typeName: 'Разработка ПО',
+                            amount: 450000,
+                            status: 'in_progress',
+                            statusName: 'В работе'
+                        }
+                    ];
+                    
+                    let html = '';
+                    mockContracts.forEach(contract => {
+                        const statusClass = {
+                            'draft': 'status-draft',
+                            'sent': 'status-sent',
+                            'signed': 'status-signed',
+                            'completed': 'status-completed',
+                            'cancelled': 'status-cancelled'
+                        }[contract.status] || 'bg-gray-100 text-gray-800';
+                        
+                        html += `
+                            <tr>
+                                <td class="px-4 py-3 font-medium">${contract.number}</td>
+                                <td class="px-4 py-3">${new Date(contract.date).toLocaleDateString()}</td>
+                                <td class="px-4 py-3">${contract.typeName}</td>
+                                <td class="px-4 py-3">${contract.amount.toLocaleString()} ₽</td>
+                                <td class="px-4 py-3">
+                                    <span class="status-badge ${statusClass}">${contract.statusName}</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <button onclick="editContract(${contract.id})" class="text-blue-600 hover:text-blue-800 mr-2" title="Редактировать">✏️</button>
+                                    <button onclick="viewContract(${contract.id})" class="text-green-600 hover:text-green-800 mr-2" title="Просмотр">👁️</button>
+                                    <button onclick="downloadContract(${contract.id})" class="text-purple-600 hover:text-purple-800" title="Скачать">⬇️</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    if (mockContracts.length === 0) {
+                        html = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">Нет договоров</td></tr>';
+                    }
+                    
+                    tableBody.innerHTML = html;
+                }, 500);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки договоров:', error);
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-red-500">Ошибка загрузки договоров</td></tr>';
+            }
+        }
+
+        function createNewContract() {
+            const modal = document.getElementById('contract-edit-modal');
+            if (!modal) return;
+            
+            // Очищаем форму
+            document.getElementById('contract-id').value = '';
+            document.getElementById('contract-user-id').value = currentContractsUserId;
+            document.getElementById('contract-number').value = '';
+            document.getElementById('contract-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('contract-type').value = 'service';
+            document.getElementById('contract-amount').value = '';
+            document.getElementById('contract-description').value = '';
+            document.getElementById('contract-status').value = 'draft';
+            document.getElementById('contract-expiry').value = '';
+            document.getElementById('contract-file').value = '';
+            
+            modal.classList.remove('hidden');
+        }
+
+        function editContract(contractId) {
+            // Заглушка для редактирования
+            showNotification('Редактирование договора (в разработке)', 'info');
+        }
+
+        function viewContract(contractId) {
+            // Заглушка для просмотра
+            showNotification('Просмотр договора (в разработке)', 'info');
+        }
+
+        function downloadContract(contractId) {
+            // Заглушка для скачивания
+            showNotification('Скачивание договора (в разработке)', 'info');
+        }
+
+        function closeContractEditModal() {
+            const modal = document.getElementById('contract-edit-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function saveContract(event) {
+            event.preventDefault();
+            showNotification('Сохранение договора (в разработке)', 'info');
+            closeContractEditModal();
         }
 
         // ========== ФУНКЦИИ ДЛЯ РЕДАКТИРОВАНИЯ РЕКВИЗИТОВ ==========
