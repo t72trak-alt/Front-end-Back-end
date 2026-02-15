@@ -351,7 +351,7 @@
             overflow-y: auto;
         }
         .contracts-table-scroll {
-            min-width: 2200px; /* Увеличено для нового столбца */
+            min-width: 2200px;
         }
         .contracts-table {
             width: 100%;
@@ -723,58 +723,65 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО КАРТОЧКИ КЛИЕНТА -->
-    <div id="client-card-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center hidden z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8 mx-4">
-            <div class="flex justify-between items-center p-6 border-b">
+    <!-- МОДАЛЬНОЕ ОКНО КАРТОЧКИ КЛИЕНТА - ИСПРАВЛЕНО -->
+<div id="client-card-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center hidden z-50 overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8 mx-4 relative">
+        <!-- Фиксированная шапка с белым фоном и тенью -->
+        <div class="sticky top-0 z-30 bg-white rounded-t-xl border-b shadow-md">
+            <div class="flex justify-between items-center p-6 pt-16">
                 <h3 class="text-2xl font-bold text-gray-800" id="client-card-title">👤 Личная карточка клиента</h3>
-                <button onclick="closeClientCardModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center">
+                <button onclick="closeClientCardModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center shadow-sm">
                     <span class="mr-2">✕</span> Выход
                 </button>
             </div>
-            
-            <div class="border-b border-gray-200 px-6">
-                <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
-                    <li class="mr-2">
-                        <button class="client-tab-btn inline-block p-4 border-b-2 border-blue-600 text-blue-600 active" id="tab-main-btn" onclick="switchClientTab('main')">
-                            📋 Основное
-                        </button>
-                    </li>
-                    <li class="mr-2">
-                        <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-details-btn" onclick="switchClientTab('details')">
-                            📁 Реквизиты
-                        </button>
-                    </li>
-                    <li class="mr-2">
-                        <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-projects-btn" onclick="switchClientTab('projects')">
-                            📊 Проекты
-                        </button>
-                    </li>
-                    <li class="mr-2">
-                        <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-messages-btn" onclick="switchClientTab('messages')">
-                            💬 Сообщения
-                        </button>
-                    </li>
-                    <li class="mr-2">
-                        <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-contracts-btn" onclick="switchClientTab('contracts')">
-                            📄 Договоры
-                        </button>
-                    </li>
-                </ul>
+                
+                <!-- Вкладки карточки клиента - теперь внутри шапки -->
+                <div class="border-t border-gray-200 px-6">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+                        <li class="mr-2">
+                            <button class="client-tab-btn inline-block p-4 border-b-2 border-blue-600 text-blue-600 active" id="tab-main-btn" onclick="switchClientTab('main')">
+                                📋 Основное
+                            </button>
+                        </li>
+                        <li class="mr-2">
+                            <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-details-btn" onclick="switchClientTab('details')">
+                                📁 Реквизиты
+                            </button>
+                        </li>
+                        <li class="mr-2">
+                            <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-projects-btn" onclick="switchClientTab('projects')">
+                                📊 Проекты
+                            </button>
+                        </li>
+                        <li class="mr-2">
+                            <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-messages-btn" onclick="switchClientTab('messages')">
+                                💬 Сообщения
+                            </button>
+                        </li>
+                        <li class="mr-2">
+                            <button class="client-tab-btn inline-block p-4 border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300" id="tab-contracts-btn" onclick="switchClientTab('contracts')">
+                                📄 Договоры
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
             
+            <!-- Контент карточки с отступами -->
             <div id="client-card-content" class="p-6 max-h-[70vh] overflow-y-auto">
                 <div class="text-center py-8 text-gray-500">Загрузка данных клиента...</div>
             </div>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ РЕКВИЗИТОВ -->
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ РЕКВИЗИТОВ - ИСПРАВЛЕНО -->
     <div id="client-details-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center p-4 border-b bg-white sticky top-0 z-10 -mt-6 -mx-6 mb-6 px-6">
                 <h3 class="text-2xl font-bold text-gray-800">📝 Редактирование реквизитов</h3>
-                <button onclick="closeClientDetailsModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                <button onclick="closeClientDetailsModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center">
+                    <span class="mr-2">✕</span> Выход
+                </button>
             </div>
             
             <form id="client-details-form" onsubmit="saveClientDetails(event)">
@@ -882,9 +889,11 @@
     <!-- МОДАЛЬНОЕ ОКНО ДОГОВОРОВ -->
     <div id="contracts-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-6">
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center p-4 border-b bg-white sticky top-0 z-10 -mt-6 -mx-6 mb-6 px-6">
                 <h3 class="text-2xl font-bold text-gray-800">📄 Договоры клиента</h3>
-                <button onclick="closeContractsModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                <button onclick="closeContractsModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center">
+                    <span class="mr-2">✕</span> Выход
+                </button>
             </div>
             
             <div class="mb-4 flex justify-between items-center">
@@ -920,30 +929,32 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ДОГОВОРА -->
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ДОГОВОРА - ИСПРАВЛЕНО -->
     <div id="contract-edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">📄 Редактирование договора</h3>
-                <button onclick="closeContractEditModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <div class="flex justify-between items-center p-4 border-b bg-white sticky top-0 z-10 -mt-6 -mx-6 mb-6 px-6">
+                <h3 class="text-2xl font-bold text-gray-800">📄 Редактирование договора</h3>
+                <button onclick="closeContractEditModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center">
+                    <span class="mr-2">✕</span> Выход
+                </button>
             </div>
             
-            <form id="contract-form" onsubmit="saveContract(event)">
+            <form id="contract-form" onsubmit="saveContract(event)" class="space-y-4">
                 <input type="hidden" id="contract-id">
                 <input type="hidden" id="contract-user-id">
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="form-group">
-                        <label for="contract-number">Номер договора</label>
-                        <input type="text" id="contract-number" class="w-full p-2 border rounded" required>
+                        <label for="contract-number" class="block text-sm font-medium text-gray-700 mb-1">Номер договора</label>
+                        <input type="text" id="contract-number" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div class="form-group">
-                        <label for="contract-date">Дата договора</label>
-                        <input type="date" id="contract-date" class="w-full p-2 border rounded" required>
+                        <label for="contract-date" class="block text-sm font-medium text-gray-700 mb-1">Дата договора</label>
+                        <input type="date" id="contract-date" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div class="form-group">
-                        <label for="contract-type">Тип договора</label>
-                        <select id="contract-type" class="w-full p-2 border rounded">
+                        <label for="contract-type" class="block text-sm font-medium text-gray-700 mb-1">Тип договора</label>
+                        <select id="contract-type" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                             <option value="service">На оказание услуг</option>
                             <option value="development">Разработка ПО</option>
                             <option value="nda">NDA (Соглашение о конфиденциальности)</option>
@@ -951,16 +962,16 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="contract-amount">Сумма</label>
-                        <input type="number" id="contract-amount" class="w-full p-2 border rounded">
+                        <label for="contract-amount" class="block text-sm font-medium text-gray-700 mb-1">Сумма</label>
+                        <input type="number" id="contract-amount" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="form-group col-span-2">
-                        <label for="contract-description">Описание/Предмет договора</label>
-                        <textarea id="contract-description" rows="3" class="w-full p-2 border rounded"></textarea>
+                        <label for="contract-description" class="block text-sm font-medium text-gray-700 mb-1">Описание/Предмет договора</label>
+                        <textarea id="contract-description" rows="3" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="contract-status">Статус</label>
-                        <select id="contract-status" class="w-full p-2 border rounded">
+                        <label for="contract-status" class="block text-sm font-medium text-gray-700 mb-1">Статус</label>
+                        <select id="contract-status" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                             <option value="draft">Черновик</option>
                             <option value="sent">Отправлен</option>
                             <option value="signed">Подписан</option>
@@ -969,19 +980,21 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="contract-expiry">Срок действия</label>
-                        <input type="date" id="contract-expiry" class="w-full p-2 border rounded">
+                        <label for="contract-expiry" class="block text-sm font-medium text-gray-700 mb-1">Срок действия</label>
+                        <input type="date" id="contract-expiry" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="form-group col-span-2">
-                        <label for="contract-file">Файл договора</label>
-                        <input type="file" id="contract-file" class="w-full p-2 border rounded" accept=".pdf,.doc,.docx">
+                        <label for="contract-file" class="block text-sm font-medium text-gray-700 mb-1">Файл договора</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="file" id="contract-file" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" accept=".pdf,.doc,.docx">
+                        </div>
                         <p class="text-xs text-gray-500 mt-1">Загрузите скан или электронную версию</p>
                     </div>
                 </div>
                 
-                <div class="flex justify-end space-x-2 mt-6">
-                    <button type="button" onclick="closeContractEditModal()" class="btn btn-secondary">Отмена</button>
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                <div class="flex justify-end space-x-2 mt-6 pt-4 border-t sticky bottom-0 bg-white pb-2">
+                    <button type="button" onclick="closeContractEditModal()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Отмена</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Сохранить</button>
                 </div>
             </form>
         </div>
@@ -3310,3 +3323,7 @@
     </script>
 </body>
 </html>
+
+
+
+
