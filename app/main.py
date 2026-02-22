@@ -6,7 +6,7 @@ import jwt
 from datetime import datetime, timedelta
 from app.database import get_db
 from app.models import User
-from app.routers import auth, chat, projects, admin, services, stats
+from app.routers import auth, chat, projects, admin, services, stats, payments  # Добавлен payments
 from app.dependencies import get_current_user
 import os
 import mimetypes
@@ -44,6 +44,7 @@ app.include_router(projects.router)   # /api/projects/*
 app.include_router(admin.router)      # /api/admin/*
 app.include_router(services.router)   # /api/services/*
 app.include_router(stats.router)      # /api/stats/*
+app.include_router(payments.router)   # /api/payments/*  <-- ДОБАВЛЕНО
 # ==========================================
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

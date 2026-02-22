@@ -20,6 +20,7 @@ class User(Base):
     projects = relationship("Project", back_populates="user")
     transactions = relationship("Transaction", back_populates="user")
     client_details = relationship("ClientDetails", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    payments = relationship("Payment", back_populates="user", cascade="all, delete-orphan")
 
 class Service(Base):
     __tablename__ = "services"
@@ -70,7 +71,7 @@ class Message(Base):
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # user_id обязателен
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     amount = Column(Integer)
     currency = Column(String, default="RUB")
@@ -89,27 +90,27 @@ class ClientDetails(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     
     # Юридическая информация
-    company_name = Column(String, nullable=True)  # Название компании
-    legal_address = Column(String, nullable=True)  # Юридический адрес
-    actual_address = Column(String, nullable=True)  # Фактический адрес
-    contact_phone = Column(String, nullable=True)  # Контактный телефон
-    contact_email = Column(String, nullable=True)  # Контактный email (может отличаться от логина)
-    messenger_contact = Column(String, nullable=True)  # Контакт в мессенджере
+    company_name = Column(String, nullable=True)
+    legal_address = Column(String, nullable=True)
+    actual_address = Column(String, nullable=True)
+    contact_phone = Column(String, nullable=True)
+    contact_email = Column(String, nullable=True)
+    messenger_contact = Column(String, nullable=True)
     
     # Налоговые реквизиты
-    inn = Column(String, nullable=True)  # ИНН
-    kpp = Column(String, nullable=True)  # КПП
-    ogrn = Column(String, nullable=True)  # ОГРН
+    inn = Column(String, nullable=True)
+    kpp = Column(String, nullable=True)
+    ogrn = Column(String, nullable=True)
     
     # Банковские реквизиты
-    bank_name = Column(String, nullable=True)  # Название банка
-    bik = Column(String, nullable=True)  # БИК
-    checking_account = Column(String, nullable=True)  # Расчетный счет
-    correspondent_account = Column(String, nullable=True)  # Корреспондентский счет
+    bank_name = Column(String, nullable=True)
+    bik = Column(String, nullable=True)
+    checking_account = Column(String, nullable=True)
+    correspondent_account = Column(String, nullable=True)
     
     # Руководитель
-    director_name = Column(String, nullable=True)  # ФИО руководителя
-    director_basis = Column(String, nullable=True)  # Действует на основании
+    director_name = Column(String, nullable=True)
+    director_basis = Column(String, nullable=True)
     
     # Метаданные
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -120,3 +121,26 @@ class ClientDetails(Base):
     
     def __repr__(self):
         return f"<ClientDetails for user {self.user_id}>"
+
+# МОДЕЛЬ PAYMENT (исправленная)
+class Payment(Base):
+    """Платежи через ЮKassa"""
+    __tablename__ = "payments"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    transaction_id = Column(String, unique=True, index=True, nullable=True)
+    amount = Column(Integer, nullable=False)
+    currency = Column(String, default="RUB")
+    status = Column(String, default="pending")  # pending, succeeded, canceled, refunded
+    payment_method = Column(String, nullable=True)  # card, sbp, etc
+    description = Column(String, nullable=True)
+    payment_metadata = Column(JSON, nullable=True)  # ИСПРАВЛЕНО: было metadata
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
+    
+    # Связи
+    user = relationship("User", back_populates="payments")
+    
+    def __repr__(self):
+        return f"<Payment {self.id}: {self.amount} {self.currency} - {self.status}>"
