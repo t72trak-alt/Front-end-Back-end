@@ -70,7 +70,7 @@ class Message(Base):
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))  # <--- ИСПРАВЛЕНО: было project_id
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # user_id обязателен
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     amount = Column(Integer)
     currency = Column(String, default="RUB")
@@ -81,7 +81,6 @@ class Transaction(Base):
     user = relationship("User", back_populates="transactions")
     project = relationship("Project", back_populates="transactions")
 
-# НОВАЯ МОДЕЛЬ: ClientDetails
 class ClientDetails(Base):
     """Детальная информация о клиенте (реквизиты)"""
     __tablename__ = "client_details"
